@@ -77,14 +77,14 @@ validates the chart and attaches `dune-awakening-<version>.tgz` to that release.
 The release tag must match `Chart.yaml`'s version, with an optional `v` prefix.
 
 After creating the namespace, credentials and `values.private.yaml` as described
-above, download and install the chart archive. For example, replace
-`OWNER/REPOSITORY` with this GitHub repository and choose an available release:
+above, download and install the chart archive. Choose an available release from
+[GitHub releases](https://github.com/Corfus/dune-awakening-helm-chart/releases):
 
 ```bash
-CHART_VERSION=0.2.4
+CHART_VERSION=0.2.6
 CHART_TAG="v${CHART_VERSION}" # Use the release's exact tag, including any v prefix.
 curl --fail --location \
-  "https://github.com/OWNER/REPOSITORY/releases/download/${CHART_TAG}/dune-awakening-${CHART_VERSION}.tgz" \
+  "https://github.com/Corfus/dune-awakening-helm-chart/releases/download/${CHART_TAG}/dune-awakening-${CHART_VERSION}.tgz" \
   --output "dune-awakening-${CHART_VERSION}.tgz"
 helm upgrade --install dune "./dune-awakening-${CHART_VERSION}.tgz" \
   --namespace "$DUNE_NAMESPACE" --wait --timeout 15m -f values.private.yaml
@@ -382,11 +382,60 @@ or their data. Stop the world explicitly before uninstalling operators.
 
 ## Argo CD and migration
 
-Use this repository's root as a Helm source with release name `dune`, destination
-namespace set to your chosen namespace and `CreateNamespace=true`. Argo CD passes
-that destination namespace to Helm as `.Release.Namespace`. Perform a full sync so the Sync hook
-runs. Existing Argo CD sync waves and CRD server-side-apply/prune protections are
-retained. Selective syncs skip hooks.
+Argo CD can render the chart directly from this GitHub repository, pinned to a
+release tag; no Helm repository or downloaded chart archive is required. Replace
+the example tag, image registry and storage class below with your own settings.
+Use an existing release tag, including its exact `v` prefix
+if present.
+
+Before syncing, meet the [prerequisites](#prerequisites), create your destination
+namespace and provision `dune-credentials` there as described in
+[Credentials and installation](#credentials-and-installation). Keep credentials
+managed separately from the Application; do not put secrets in its Helm values.
+
+Save this as `application.yaml`:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dune
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Corfus/dune-awakening-helm-chart.git
+    targetRevision: v0.2.6
+    path: .
+    helm:
+      releaseName: dune
+      valuesObject:
+        images:
+          registry: registry.example.com/dune-awakening-images
+        storage:
+          class: your-storage-class
+        credentials:
+          existingSecret: dune-credentials
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: my-game
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+```
+
+Apply the Application and perform a full sync:
+
+```bash
+kubectl apply -f application.yaml
+argocd app sync dune
+```
+
+Argo CD passes the destination namespace to Helm as `.Release.Namespace`. A full
+sync runs the Sync hook; selective syncs skip hooks. Existing Argo CD sync waves
+and CRD server-side-apply/prune protections are retained. To upgrade, update
+`targetRevision` to the next release tag, review any required values or CRD
+changes, apply the Application and perform another full sync.
 
 For an existing Kustomize installation, back up the credentials Secret and database,
 keep the namespace and world ID unchanged, and switch the existing Argo CD
