@@ -1,0 +1,52 @@
+name: Publish Helm chart
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-chart-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  release-chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the released tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Install Helm 3
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.19.0
+
+      - name: Validate and package the chart
+        id: package
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          chart_version=$(helm show chart . | awk '$1 == "version:" {print $2}')
+          if [ "${RELEASE_TAG#v}" != "$chart_version" ]; then
+            echo "Release tag $RELEASE_TAG must match Chart.yaml version $chart_version (optional v prefix)." >&2
+            exit 1
+          fi
+          helm lint . --strict
+          helm package . --destination dist
+          archive="dist/dune-awakening-${chart_version}.tgz"
+          helm template dune "$archive" --namespace dune --include-crds > /dev/null
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+
+      - name: Attach the chart to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          CHART_ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: gh release upload "$RELEASE_TAG" "$CHART_ARCHIVE" --clobber

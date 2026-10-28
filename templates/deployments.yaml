@@ -1,0 +1,352 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: battlegroupoperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: databaseoperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: serveroperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: utilitiesoperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    control-plane: battlegroup-controller-manager
+  name: battlegroupoperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: battlegroup-controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: battlegroup-controller-manager
+    spec:
+      serviceAccountName: battlegroupoperator-controller-manager
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: manager
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        command:
+        - /app/operator
+        args:
+        - --leader-elect
+        - --database-default-port=15432
+        - --filebrowser-default-port=18888
+        - --pghero-default-port=21111
+        - --zap-devel=false
+        - --zap-time-encoding=iso8601
+        - --bg-max-concurrent=2
+        - --dr-max-concurrent=2
+        - --sr-max-concurrent=2
+        - --cfo-taints-ignore=node.kubernetes.io/unschedulable,node.funcom.com/new
+        - --zap-log-level=info
+        image: {{ printf "%s/igw-k8s-battlegroup-operator:%s" (trimSuffix "/" .Values.images.registry) .Values.images.operators.version | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+        - name: health
+          containerPort: 8081
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 20
+      volumes:
+      - name: cert
+        secret:
+          secretName: battlegroupoperator-webhook-server-cert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    control-plane: database-controller-manager
+  name: databaseoperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: database-controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: database-controller-manager
+    spec:
+      serviceAccountName: databaseoperator-controller-manager
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: manager
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        command:
+        - /app/operator
+        args:
+        - --leader-elect
+        - --zap-devel=false
+        - --zap-time-encoding=iso8601
+        - --db-max-concurrent=1
+        - --dbdepl-max-concurrent=1
+        - --dbutil-max-concurrent=1
+        - --dbop-max-concurrent=1
+        - --dbb-max-concurrent=1
+        - --dbbs-max-concurrent=1
+        - --dbr-max-concurrent=1
+        - --dbm-max-concurrent=1
+        - --dbutil-supports-prometheus=false
+        - --zap-log-level=info
+        - --config-resource-name=$(POD_NAMESPACE)/operators-config-cm
+        image: {{ printf "%s/igw-k8s-database-operator:%s" (trimSuffix "/" .Values.images.registry) .Values.images.operators.version | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+        - name: health
+          containerPort: 8081
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 20
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      volumes:
+      - name: cert
+        secret:
+          secretName: databaseoperator-webhook-server-cert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    control-plane: server-controller-manager
+  name: serveroperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: server-controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: server-controller-manager
+    spec:
+      serviceAccountName: serveroperator-controller-manager
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: manager
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        command:
+        - /app/operator
+        args:
+        - --leader-elect
+        - --zap-devel=false
+        - --zap-time-encoding=iso8601
+        - --sg-max-concurrent=2
+        - --ss-max-concurrent=2
+        - --zap-log-level=info
+        image: {{ printf "%s/igw-k8s-server-operator:%s" (trimSuffix "/" .Values.images.registry) .Values.images.operators.version | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+        - name: health
+          containerPort: 8081
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 20
+      volumes:
+      - name: cert
+        secret:
+          secretName: serveroperator-webhook-server-cert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    control-plane: utilities-controller-manager
+  name: utilitiesoperator-controller-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: utilities-controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: utilities-controller-manager
+    spec:
+      serviceAccountName: utilitiesoperator-controller-manager
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: manager
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        command:
+        - /app/operator
+        args:
+        - --leader-elect
+        - --zap-devel=false
+        - --zap-time-encoding=iso8601
+        - --sgw-max-concurrent=2
+        - --bgd-max-concurrent=2
+        - --fb-max-concurrent=1
+        - --mq-max-concurrent=2
+        - --tr-max-concurrent=2
+        - --zap-log-level=info
+        image: {{ printf "%s/igw-k8s-utilities-operator:%s" (trimSuffix "/" .Values.images.registry) .Values.images.operators.version | quote }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+        - name: health
+          containerPort: 8081
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 30
+          periodSeconds: 20
+      volumes:
+      - name: cert
+        secret:
+          secretName: utilitiesoperator-webhook-server-cert

@@ -1,0 +1,22 @@
+{{- include "dune.validateCredentials" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-battlegroup-template
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+data:
+  battlegroup.yaml: |
+{{ tpl (.Files.Get "files/battlegroup.yaml") . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-bootstrap-script
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+data:
+  apply-battlegroup.py: |
+{{ .Files.Get "files/apply-battlegroup.py" | indent 4 }}

@@ -1,0 +1,768 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registry",
+        "operators",
+        "game",
+        "postgres",
+        "yq",
+        "python",
+        "pghero",
+        "filebrowser"
+      ],
+      "properties": {
+        "registry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operators": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version"
+          ],
+          "properties": {
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "postgres": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version"
+          ],
+          "properties": {
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "game": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "revision"
+          ],
+          "properties": {
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "yq": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "registry",
+            "version"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "python": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "registry",
+            "version"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "pghero": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "registry",
+            "version"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "filebrowser": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "registry",
+            "version"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "required": [
+        "existingSecret"
+      ],
+      "properties": {
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "world": {
+      "type": "object",
+      "required": [
+        "title",
+        "stop",
+        "pvpMode",
+        "gameplay",
+        "mapResources"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stop": {
+          "type": "boolean"
+        },
+        "battlEyeEnabled": {
+          "description": "Override BattlEye anti-cheat; null preserves the game image default.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "pvpMode": {
+          "description": "NoPVP for PvE, Limited for normal PvP zones, FullPVP for PvP everywhere.",
+          "type": "string",
+          "enum": [
+            "NoPVP",
+            "Limited",
+            "FullPVP"
+          ]
+        },
+        "serverLoginPassword": {
+          "type": "string",
+          "maxLength": 0
+        },
+        "gameplay": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "gatheringMultiplier": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "GatheringAmount"
+            },
+            "xpMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "GlobalXpMultiplier"
+            },
+            "combatXpMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "CombatXp"
+            },
+            "gatheringXpMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "GatheringXp"
+            },
+            "missionXpMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "MissionXp"
+            },
+            "craftingTimeMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5,
+              "description": "CraftingTimeMultiplier"
+            },
+            "craftingCostMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "CraftingCost"
+            },
+            "buildingCostMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "BuildingCostMultiplier"
+            },
+            "inventoryVolumeMultiplier": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "InventoryVolumeMultiplier"
+            },
+            "lootRespawnSpeed": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "LootRespawnSpeed"
+            },
+            "resourceRespawnSpeed": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "ResourceRespawnSpeed"
+            },
+            "equipmentDropOnDeath": {
+              "type": "string",
+              "enum": [
+                "All",
+                "Backpack",
+                "Default",
+                "None"
+              ],
+              "description": "DropEquipmentOnDeath"
+            },
+            "sandwormDeathPenalty": {
+              "type": "string",
+              "enum": [
+                "All",
+                "Backpack",
+                "Default",
+                "None"
+              ],
+              "description": "SandwormConsequences"
+            },
+            "playerDeathLootRule": {
+              "type": "string",
+              "enum": [
+                "DependsOnSecurityZone",
+                "NeverAllowOtherPlayers",
+                "AlwaysAllowOtherPlayers"
+              ],
+              "description": "PlayerDeathLootRule"
+            },
+            "itemDurabilityDrainMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "ItemDurabilityDrainMultiplier"
+            },
+            "maxDurabilityLossEnabled": {
+              "type": "boolean",
+              "description": "bEnableItemMaxDurabilityLoss"
+            },
+            "vehicleDurabilityDamageMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "dw.VehicleDurabilityDamageMultiplier"
+            },
+            "sandwormsEnabled": {
+              "type": "boolean",
+              "description": "bAllowSandworms"
+            },
+            "sandstormsEnabled": {
+              "type": "boolean",
+              "description": "bAllowSandstorms"
+            },
+            "coriolisStormsEnabled": {
+              "type": "boolean",
+              "description": "m_bCoriolisAutoSpawnEnabled"
+            },
+            "buildingPieceLimitMultiplier": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "BuildingPieceLimitMultiplier"
+            },
+            "maxBases": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 10,
+              "description": "FiefdomLimit"
+            },
+            "infiniteBuildingStability": {
+              "type": "boolean",
+              "description": "bBuildingInfiniteStability"
+            },
+            "dynamicBuildingDamageEnabled": {
+              "type": "boolean",
+              "description": "bAllowDynamicBuildingDamage"
+            },
+            "thirstMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "ThirstMultiplier"
+            },
+            "heatBuildupMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "HeatBuildupRate"
+            }
+          },
+          "required": [
+            "gatheringMultiplier",
+            "xpMultiplier",
+            "combatXpMultiplier",
+            "gatheringXpMultiplier",
+            "missionXpMultiplier",
+            "craftingTimeMultiplier",
+            "craftingCostMultiplier",
+            "buildingCostMultiplier",
+            "inventoryVolumeMultiplier",
+            "lootRespawnSpeed",
+            "resourceRespawnSpeed",
+            "equipmentDropOnDeath",
+            "sandwormDeathPenalty",
+            "playerDeathLootRule",
+            "itemDurabilityDrainMultiplier",
+            "maxDurabilityLossEnabled",
+            "vehicleDurabilityDamageMultiplier",
+            "sandwormsEnabled",
+            "sandstormsEnabled",
+            "coriolisStormsEnabled",
+            "buildingPieceLimitMultiplier",
+            "infiniteBuildingStability",
+            "dynamicBuildingDamageEnabled",
+            "thirstMultiplier",
+            "heatBuildupMultiplier"
+          ]
+        },
+        "mapResources": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "Survival_1": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "Overmap": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "SH_Arrakeen": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "SH_HarkoVillage": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Story_Hephaestus": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Story_Ecolab_Carthag": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Story_WaterFatManor": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "DeepDesert_1": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "Story_ProcesVerbal": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "DLC_Story_LostHarvest_EcolabA": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "DLC_Story_LostHarvest_EcolabB": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "DLC_Story_LostHarvest_ForgottenLab": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "Story_ArtOfKanly": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Dungeon_Hephaestus": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Dungeon_OldCarthag": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "Story_Faction_Outpost_Atre": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "Story_Faction_Outpost_Hark": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "Story_HeighlinerDungeon": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Ecolab_Bronze_Green_089": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Ecolab_Bronze_Green_152": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Ecolab_Bronze_Green_024": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Ecolab_Bronze_Green_195": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Ecolab_Bronze_Green_136": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Overland_M_01": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Overland_S_04": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Overland_S_06": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Story_BanditFortress01": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Overland_S_07": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Overland_S_08": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Dungeon_ThePit": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Story_DestroyedZanovar": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Story_OrbitalMonitor": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Arrakis_Story_Paranoid_PrayerRoom": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Arrakis_Story_Glutton_DiningRoom": {
+              "$ref": "#/definitions/mapResources"
+            },
+            "CB_Arrakis_Generic_Sietch_Room": {
+              "$ref": "#/definitions/mapResources"
+            }
+          }
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "required": [
+        "class",
+        "databaseSize",
+        "sharedSize"
+      ],
+      "properties": {
+        "class": {
+          "type": "string"
+        },
+        "databaseSize": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sharedSize": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "networkPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "nodeCIDRs",
+        "playerCIDRs",
+        "apiServerCIDRs",
+        "game",
+        "monitoring"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "nodeCIDRs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9A-Fa-f:.]+/[0-9]{1,3}$"
+          }
+        },
+        "playerCIDRs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9A-Fa-f:.]+/[0-9]{1,3}$"
+          },
+          "minItems": 1
+        },
+        "apiServerCIDRs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9A-Fa-f:.]+/[0-9]{1,3}$"
+          },
+          "minItems": 1
+        },
+        "game": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "port",
+            "endPort"
+          ],
+          "properties": {
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "endPort": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "namespaceSelector",
+            "podSelector",
+            "ports"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "namespaceSelector": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "matchLabels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "matchExpressions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "operator"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "operator": {
+                        "enum": [
+                          "In",
+                          "NotIn",
+                          "Exists",
+                          "DoesNotExist"
+                        ]
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "podSelector": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "matchLabels": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "matchExpressions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "operator"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "operator": {
+                        "enum": [
+                          "In",
+                          "NotIn",
+                          "Exists",
+                          "DoesNotExist"
+                        ]
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ports": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "port"
+                ],
+                "properties": {
+                  "protocol": {
+                    "enum": [
+                      "TCP",
+                      "UDP",
+                      "SCTP"
+                    ]
+                  },
+                  "port": {
+                    "oneOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 65535
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 15,
+                        "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "nodeCIDRs": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "mapResources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requests": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "pattern": "^(?:[0-9]+m|[0-9]+(?:\\.[0-9]{1,3})?)$"
+            },
+            "memory": {
+              "type": "string",
+              "pattern": "^(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+|[numkMGTPE]|[KMGTPE]i)?$"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "pattern": "^(?:[0-9]+m|[0-9]+(?:\\.[0-9]{1,3})?)$"
+            },
+            "memory": {
+              "type": "string",
+              "pattern": "^(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+|[numkMGTPE]|[KMGTPE]i)?$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2263 @@
+# Cluster-wide reads support the upstream operators' unscoped caches.
+# All mutations and pod exec are restricted to the release namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: battlegroupoperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasedeployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupstats
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupstats/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - dataresets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - dataresets/status
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - fileoverlays
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverrestarts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverrestarts/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseoperations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlaynodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: battlegroupoperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+  - deletecollection
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupstats
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupstats/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupstats/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - dataresets
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - dataresets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - dataresets/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - patch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - patch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverrestarts
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverrestarts/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverrestarts/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays/status
+  verbs:
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: databaseoperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasedeployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasedeployments/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases/status
+  verbs:
+  - get
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - dataresets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseoperations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseoperations/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackups/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackupschedules
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackupschedules/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaserestores
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaserestores/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasemigrates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasemigrates/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: databaseoperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - deletecollection
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+  - deletecollection
+- apiGroups:
+  - ''
+  resources:
+  - pods/exec
+  verbs:
+  - create
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasedeployments
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasedeployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasedeployments/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseutilities/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseoperations
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseoperations/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaseoperations/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackups
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackups/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackupschedules
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackupschedules/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasebackupschedules/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaserestores
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaserestores/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databaserestores/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasemigrates
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasemigrates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databasemigrates/status
+  verbs:
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: serveroperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods/status
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - pods/log
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversets/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversetscales
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups/status
+  verbs:
+  - get
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - databases
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - fileoverlays
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverstats
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverstats/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - cachedfileoverlays/status
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: serveroperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+  - deletecollection
+- apiGroups:
+  - ''
+  resources:
+  - pods/status
+  verbs:
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversets
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversets/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversetscales
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversetscales/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergroups/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverrestarts
+  verbs:
+  - create
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - patch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverstats
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serverstats/status
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: utilitiesoperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways/status
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - get
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters/status
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - imagepreheats
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - imagepreheats/status
+  verbs:
+  - get
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - pods/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectorstats
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectorstats/status
+  verbs:
+  - get
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversetscales
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: utilitiesoperator-manager-role
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - filebrowsers/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - servergateways/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectors/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroups
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - messagequeues/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - textrouters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - imagepreheats
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - imagepreheats/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - imagepreheats/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+  - deletecollection
+- apiGroups:
+  - ''
+  resources:
+  - pods/status
+  verbs:
+  - patch
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectorstats
+  verbs:
+  - create
+  - delete
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectorstats/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - battlegroupdirectorstats/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - igw.funcom.com
+  resources:
+  - serversetscales
+  verbs:
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: battlegroupoperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: battlegroupoperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: battlegroupoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: battlegroupoperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: battlegroupoperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: battlegroupoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: battlegroupoperator-controller-manager-leader-election
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dune-operator-leader-election
+subjects:
+- kind: ServiceAccount
+  name: battlegroupoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: databaseoperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: databaseoperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: databaseoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: databaseoperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: databaseoperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: databaseoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: databaseoperator-controller-manager-leader-election
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dune-operator-leader-election
+subjects:
+- kind: ServiceAccount
+  name: databaseoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: serveroperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: serveroperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: serveroperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: serveroperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: serveroperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: serveroperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: serveroperator-controller-manager-leader-election
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dune-operator-leader-election
+subjects:
+- kind: ServiceAccount
+  name: serveroperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: utilitiesoperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: utilitiesoperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: utilitiesoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: utilitiesoperator-controller-manager-binding
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+  namespace: {{ .Release.Namespace | quote }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: utilitiesoperator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: utilitiesoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: utilitiesoperator-controller-manager-leader-election
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dune-operator-leader-election
+subjects:
+- kind: ServiceAccount
+  name: utilitiesoperator-controller-manager
+  namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-operator-leader-election
+  annotations:
+    argocd.argoproj.io/sync-wave: '-20'
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ''
+  resources:
+  - events
+  verbs:
+  - create
+  - patch

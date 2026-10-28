@@ -1,0 +1,131 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '-30'
+    controller-gen.kubebuilder.io/version: v0.18.0
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Prune=false
+  name: serverrestarts.igw.funcom.com
+spec:
+  group: igw.funcom.com
+  names:
+    kind: ServerRestart
+    listKind: ServerRestartList
+    plural: serverrestarts
+    shortNames:
+    - igwsr
+    singular: serverrestart
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .spec.mode
+      name: Mode
+      type: string
+    - jsonPath: .status.battleGroup
+      name: BattleGroup
+      type: string
+    - jsonPath: .spec.reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: ServerRestart is the Schema for the serverrestarts API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object.
+
+              Servers should convert recognized schemas to the latest internal value, and
+
+              may reject unrecognized values.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents.
+
+              Servers may infer this from the endpoint the client submits requests to.
+
+              Cannot be updated.
+
+              In CamelCase.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ServerRestartSpec defines the desired state of ServerRestart
+            properties:
+              battleGroup:
+                description: BattleGroup defines the unqiue identifier of the battlegroup to be restarted.
+                pattern: '[a-z0-9]([-a-z0-9]*[a-z0-9])?'
+                type: string
+              indexes:
+                description: Indexes of the pods to restart when using target mode `Pods`.
+                items:
+                  type: integer
+                type: array
+              mode:
+                default: BattleGroup
+                description: Mode defines the target mode to use when deciding what to restart.
+                enum:
+                - BattleGroup
+                - Pods
+                type: string
+              pod:
+                description: Pod defines the name of a pod of the battlegroup to be restarted.
+                type: string
+              reason:
+                description: Reason allows specifying the reason for the restart for investigative purposes.
+                type: string
+              scalers:
+                description: 'Scalers allows specifying maps to be scaled down when starting the battlegroup back
+                  up
+
+                  by deselecting active partitions to match the requested size.
+
+                  Only supports scaling maps down, not up.'
+                items:
+                  description: ServerRestartScaler defines data necessary to scale down maps.
+                  properties:
+                    map:
+                      description: Map defines the name regex to match maps to scale.
+                      type: string
+                    size:
+                      description: 'Size defines the maximum amount of partitions to keep for each matching map.
+
+                        If a map already has less partitions it will not scale up.'
+                      type: integer
+                  required:
+                  - map
+                  - size
+                  type: object
+                type: array
+            type: object
+          status:
+            description: ServerRestartStatus defines the observed state of ServerRestart
+            properties:
+              battleGroup:
+                type: string
+              phase:
+                description: ServerRestartPhase describes a server restart's current phase
+                enum:
+                - Pending
+                - Stopping
+                - Starting
+                - Succeeded
+                - Failed
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

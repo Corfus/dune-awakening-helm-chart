@@ -1,0 +1,118 @@
+# Image names are fixed in the chart. Registry values include any project path.
+images:
+  # Placeholder: set to the registry where you publish the required images.
+  registry: registry.example.com/dune-awakening-images
+  operators:
+    version: v1.7.0
+  game:
+    version: 2162777-0-shipping
+    # Must match the game build advertised to Funcom.
+    revision: 2162777
+  postgres:
+    version: 17.4-alpine-fc-13
+  yq:
+    registry: docker.io
+    version: "4.47.2"
+  python:
+    registry: docker.io
+    version: 3.13-alpine
+  pghero:
+    registry: docker.io
+    version: v2.8.3
+  filebrowser:
+    registry: docker.io
+    version: v2.18.0
+
+credentials:
+  # Provision separately. Helm never creates or rotates database credentials.
+  existingSecret: dune-credentials
+
+# Optionally set node labels to restrict workload placement.
+nodeSelector: {}
+
+# Opt in after identifying trusted node IPs and verifying CNI enforcement.
+# Game servers and the file browser use upstream hostNetwork pods.
+networkPolicy:
+  enabled: false
+  # Required when enabled: narrow node /32 or /128 addresses are preferred.
+  # Host-networked clients need these exceptions for internal connections.
+  nodeCIDRs: []
+  playerCIDRs: ["0.0.0.0/0", "::/0"]
+  # API server traffic may be SNATed; narrow to its observed source addresses.
+  apiServerCIDRs: ["0.0.0.0/0", "::/0"]
+  game:
+    port: 7777
+    endPort: 7810
+  monitoring:
+    enabled: false
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+    podSelector: {}
+    # RabbitMQ Prometheus metrics. Add only the metrics ports you need.
+    ports:
+      - protocol: TCP
+        port: 15692
+
+storage:
+  class: ""
+  databaseSize: 20Gi
+  sharedSize: 5Gi
+
+world:
+  title: Dyne Awakenyng
+  stop: false
+  # null preserves the game image default; true/false explicitly enables/disables it.
+  battlEyeEnabled: null
+  # NoPVP (PvE), Limited (normal PvP zones), or FullPVP (PvP everywhere).
+  pvpMode: Limited
+  # Player passwords are read from server-login-password in credentials.existingSecret.
+
+  # Gameplay changes require a battlegroup restart. Multipliers retain upstream defaults.
+  gameplay:
+    # Gathering: 0.1–10. Applied to hand and vehicle mining and custom settings.
+    gatheringMultiplier: 1
+    # XP: 0–10; zero disables the corresponding gain.
+    xpMultiplier: 1
+    combatXpMultiplier: 1
+    gatheringXpMultiplier: 1
+    missionXpMultiplier: 1
+    # Time: 0–5; costs: 0–10. Zero means instant crafting or no cost.
+    craftingTimeMultiplier: 1
+    craftingCostMultiplier: 1
+    buildingCostMultiplier: 1
+    # Capacity and respawn speed: 0.1–10.
+    inventoryVolumeMultiplier: 1
+    # Higher loot values make loot respawn slower; higher resource values respawn faster.
+    lootRespawnSpeed: 1
+    resourceRespawnSpeed: 1
+    # All, Backpack, Default, or None. Quote "None" when using a values file.
+    equipmentDropOnDeath: Default
+    sandwormDeathPenalty: All
+    # DependsOnSecurityZone, NeverAllowOtherPlayers, or AlwaysAllowOtherPlayers.
+    playerDeathLootRule: DependsOnSecurityZone
+    # Durability: 0–10; zero disables durability damage/drain.
+    itemDurabilityDrainMultiplier: 1
+    maxDurabilityLossEnabled: true
+    vehicleDurabilityDamageMultiplier: 1
+    sandwormsEnabled: true
+    # Controls ordinary storms and their treasure, independently of Coriolis storms.
+    sandstormsEnabled: true
+    coriolisStormsEnabled: true
+    # Building pieces: 0.1–10; maxBases: 0–10, or null to keep the image default.
+    buildingPieceLimitMultiplier: 1
+    maxBases: null
+    infiniteBuildingStability: false
+    dynamicBuildingDamageEnabled: true
+    # Survival: 0–10; zero disables thirst/heat buildup.
+    thirstMultiplier: 1
+    heatBuildupMultiplier: 1
+
+  # Optional CPU/memory requests and limits, keyed by an existing map name.
+  # Partial overrides retain that map's original memory limit.
+  # Example:
+  # mapResources:
+  #   Survival_1:
+  #     requests: {cpu: "1", memory: 8Gi}
+  #     limits: {cpu: "4", memory: 16Gi}
+  mapResources: {}

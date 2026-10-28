@@ -1,0 +1,123 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '-30'
+    controller-gen.kubebuilder.io/version: v0.18.0
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Prune=false
+  name: databasebackups.igw.funcom.com
+spec:
+  group: igw.funcom.com
+  names:
+    kind: DatabaseBackup
+    listKind: DatabaseBackupList
+    plural: databasebackups
+    shortNames:
+    - igwdbb
+    singular: databasebackup
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .spec.originator
+      name: Originator
+      type: string
+    - jsonPath: .status.duration
+      name: Duration
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: DatabaseBackup is the Schema for the DatabaseBackup API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object.
+
+              Servers should convert recognized schemas to the latest internal value, and
+
+              may reject unrecognized values.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents.
+
+              Servers may infer this from the endpoint the client submits requests to.
+
+              Cannot be updated.
+
+              In CamelCase.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DatabaseBackupSpec defines the details of a physical database backup.
+            properties:
+              battleGroup:
+                description: BattleGroup defines the unqiue identifier of the battlegroup whose database should
+                  be targeted.
+                pattern: '[a-z0-9]([-a-z0-9]*[a-z0-9])?'
+                type: string
+              originator:
+                description: Originator defines the source of the backup request.
+                type: string
+            required:
+            - battleGroup
+            type: object
+          status:
+            description: DatabaseBackupStatus defines the observed status of a physical database backup.
+            properties:
+              duration:
+                description: Duration contains the duration between [StartTime] and [FinishTime] for easy access
+                  and display as a printcolumn.
+                type: string
+              finishTime:
+                description: FinishTime contains the time at which the backup's executed command finished.
+                format: date-time
+                type: string
+              identifier:
+                description: Identifier contains the name of the backup used to identify it in storage and when
+                  restoring it.
+                type: string
+              phase:
+                description: Phase contains the backups current processing phase.
+                enum:
+                - Preparing
+                - Pending
+                - Starting
+                - Ongoing
+                - Cleanup
+                - Succeeded
+                - Finishing
+                - Failed
+                type: string
+              runner:
+                description: Runner contains information identifying the specific instance executing the backup.
+                properties:
+                  containerID:
+                    description: ContainerID specifies the identifier of the container executing the backup.
+                    type: string
+                  podName:
+                    description: PodName specifies the name of the pod executing the backup.
+                    type: string
+                type: object
+              startTime:
+                description: StartTime contains the time at which the backup started executing the backup command.
+                format: date-time
+                type: string
+            type: object
+        type: object
+    selectableFields:
+    - jsonPath: .spec.battleGroup
+    - jsonPath: .spec.originator
+    served: true
+    storage: true
+    subresources:
+      status: {}

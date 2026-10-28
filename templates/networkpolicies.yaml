@@ -1,0 +1,163 @@
+{{- if .Values.networkPolicy.enabled }}
+{{- if not (semverCompare ">=1.25.0-0" .Capabilities.KubeVersion.Version) }}
+{{- fail "Network policies require Kubernetes 1.25+ and a CNI that supports NetworkPolicy endPort ranges" }}
+{{- end }}
+{{- if not .Values.networkPolicy.nodeCIDRs }}
+{{- fail "networkPolicy.nodeCIDRs must contain the node IP ranges used by upstream hostNetwork workloads" }}
+{{- end }}
+{{- if lt (int .Values.networkPolicy.game.endPort) (int .Values.networkPolicy.game.port) }}
+{{- fail "networkPolicy.game.endPort must be greater than or equal to networkPolicy.game.port" }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-default-deny-ingress
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+  ingress: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-allow-namespace
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector:
+    matchExpressions:
+      - key: role
+        operator: NotIn
+        values: [igw-filebrowser]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        # An empty podSelector alone selects pods in this namespace only.
+        - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-allow-nodes
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector:
+    matchExpressions:
+      - key: role
+        operator: NotIn
+        values: [igw-filebrowser]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        # Upstream hostNetwork clients may appear as node IPs, not pod peers.
+        {{- range .Values.networkPolicy.nodeCIDRs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+        {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-allow-game
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector:
+    matchLabels:
+      role: igw-server
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        {{- range .Values.networkPolicy.playerCIDRs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+        {{- end }}
+      ports:
+        - protocol: UDP
+          port: {{ .Values.networkPolicy.game.port }}
+          endPort: {{ .Values.networkPolicy.game.endPort }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-allow-game-rmq
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector:
+    matchLabels:
+      role: igw-message-queue
+      messagequeue: game
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        {{- range .Values.networkPolicy.playerCIDRs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+        {{- end }}
+      ports:
+        # Filter the container's named port (5672), not NodePort 31982.
+        - protocol: TCP
+          port: amqp
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-allow-webhooks
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector:
+    matchExpressions:
+      - key: control-plane
+        operator: In
+        values:
+          - battlegroup-controller-manager
+          - database-controller-manager
+          - server-controller-manager
+          - utilities-controller-manager
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        {{- range .Values.networkPolicy.apiServerCIDRs }}
+        - ipBlock:
+            cidr: {{ . | quote }}
+        {{- end }}
+      ports:
+        - protocol: TCP
+          port: 9443
+{{- if .Values.networkPolicy.monitoring.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: dune-allow-monitoring
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  podSelector:
+    matchExpressions:
+      - key: role
+        operator: NotIn
+        values: [igw-filebrowser]
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+{{ toYaml .Values.networkPolicy.monitoring.namespaceSelector | indent 12 }}
+          podSelector:
+{{ toYaml .Values.networkPolicy.monitoring.podSelector | indent 12 }}
+      ports:
+{{ toYaml .Values.networkPolicy.monitoring.ports | indent 8 }}
+{{- end }}
+{{- end }}

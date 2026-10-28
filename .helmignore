@@ -1,0 +1,24 @@
+.git/
+.github/
+.gitlab-ci.yml
+dist/
+tests/
+scripts/
+README.md
+README.github.md
+*.tgz
+__pycache__/
+# Local credentials and editor state must never enter chart archives.
+values.private*.yaml
+values.private*.yml
+secret.yaml
+secret.yml
+secrets.yaml
+secrets.yml
+.env
+.env.*
+*.pem
+*.key
+.idea/
+.agents/
+.codex/

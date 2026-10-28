@@ -1,0 +1,2148 @@
+# Funcom BattleGroup template, rendered by the Argo CD sync Job using dune-credentials.
+# This file is rendered into a ConfigMap by Helm; do not apply it directly.
+apiVersion: igw.funcom.com/v1
+kind: BattleGroup
+metadata:
+  annotations:
+    creator: automatic
+    dynamicDatabaseName: 'false'
+    flsEnvironment: default
+    grid: 1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1,1x1
+    igw.funcom.com/fls-auth-preset: BattlegroupInternal
+    igw.funcom.com/game-rmq-tls-enabled: 'true'
+    igw.funcom.com/language: en-US
+    argocd.argoproj.io/sync-options: Prune=false
+  name: dune-world
+spec:
+  automaticStopDuration: ''
+  database:
+    maxConnections:
+      buffer: 10
+      minimum: 100
+    storage:
+      class: {{ .Values.storage.class | quote }}
+      size: {{ .Values.storage.databaseSize | quote }}
+      accessModes:
+      - ReadWriteOnce
+    template:
+      metadata:
+        creationTimestamp: null
+      spec:
+        deployment:
+          metadata:
+            creationTimestamp: null
+          spec:
+            allowConfigHotReload: true
+            enablePhysicalBackups: false
+            envSecretSelectors:
+            - matchLabels:
+                igw.funcom.com/env-for-database: default
+            gameDatabaseName: dune
+            image: {{ printf "%s/igw-postgres:%s" (trimSuffix "/" .Values.images.registry) .Values.images.postgres.version | quote }}
+            password: __DUNE_DATABASE_PASSWORD__
+            scriptConnectionTimeout: 30
+            superPassword: __DUNE_POSTGRES_PASSWORD__
+            superUser: postgres
+            suspend: false
+            tempStatsInMemory: false
+            tempStatsMemAlloc: 128Mi
+            useNobodySecurityContext: false
+            useUtilityConfigMap: false
+            user: dune
+            userDataEncryption:
+              keyType: None
+            utilityRuntimeConfig:
+              envSecretSelectors:
+              - matchLabels:
+                  igw.funcom.com/env-for-database-utils: default
+              supplySuperUser: true
+              useArtifactBridge: false
+            version: 17.4-alpine
+            workloadKind: StatefulSet
+            worldPartitions:
+            - map: Survival_1
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 1
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: Overmap
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 2
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: SH_Arrakeen
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 3
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: SH_HarkoVillage
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 4
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Story_Hephaestus
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 5
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Story_Ecolab_Carthag
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 6
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Story_WaterFatManor
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 7
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: DeepDesert_1
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 8
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: Story_ProcesVerbal
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 9
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: DLC_Story_LostHarvest_EcolabA
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 10
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: DLC_Story_LostHarvest_EcolabB
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 11
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: DLC_Story_LostHarvest_ForgottenLab
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 12
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: Story_ArtOfKanly
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 13
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Dungeon_Hephaestus
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 14
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Dungeon_OldCarthag
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 15
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: Story_Faction_Outpost_Atre
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 16
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: Story_Faction_Outpost_Hark
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 17
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: Story_HeighlinerDungeon
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 18
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Ecolab_Bronze_Green_089
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 19
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Ecolab_Bronze_Green_152
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 20
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Ecolab_Bronze_Green_024
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 21
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Ecolab_Bronze_Green_195
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 22
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Ecolab_Bronze_Green_136
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 23
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Overland_M_01
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 24
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Overland_S_04
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 25
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Overland_S_06
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 26
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Story_BanditFortress01
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 27
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Overland_S_07
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 28
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Overland_S_08
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 29
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Dungeon_ThePit
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 30
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Story_DestroyedZanovar
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 31
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Story_OrbitalMonitor
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 32
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Arrakis_Story_Paranoid_PrayerRoom
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 33
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Arrakis_Story_Glutton_DiningRoom
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 34
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            - map: CB_Arrakis_Generic_Sietch_Room
+              partitions:
+              - dimension: 0
+                disable: false
+                id: 35
+                maxX: 1
+                maxY: 1
+                minX: 0
+                minY: 0
+            nodeSelector:{{ toYaml .Values.nodeSelector | nindent 14 }}
+        utilities:
+          metadata:
+            creationTimestamp: null
+          spec:
+            monitor:
+              scrapeInterval: 30s
+              scrapeTimeout: 20s
+              serviceMonitorLabels:
+                chart: kube-prometheus-stack-19.0.0
+                release: kube-prometheus-stack
+              suspend: false
+            pgHero:
+              image: {{ printf "%s/ankane/pghero:%s" (trimSuffix "/" .Values.images.pghero.registry) .Values.images.pghero.version | quote }}
+              suspend: false
+            suspend: false
+  name: dune-world
+  restartScalers:
+  - map: ^SH_.*
+    size: 1
+  - map: ^(.*_)Story_.*
+    size: 1
+  serverGroup:
+    template:
+      metadata:
+        creationTimestamp: null
+      spec:
+        sets:
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Survival_1
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          partitions:
+          - 1
+          replicas: 1
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Survival_1" "memory" "12Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Overmap
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          partitions:
+          - 2
+          replicas: 1
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Overmap" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: SH_Arrakeen
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "SH_Arrakeen" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: SH_HarkoVillage
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "SH_HarkoVillage" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Story_Hephaestus
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Story_Hephaestus" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Story_Ecolab_Carthag
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Story_Ecolab_Carthag" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Story_WaterFatManor
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Story_WaterFatManor" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: DeepDesert_1
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "DeepDesert_1" "memory" "15Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Story_ProcesVerbal
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Story_ProcesVerbal" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: DLC_Story_LostHarvest_EcolabA
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "DLC_Story_LostHarvest_EcolabA" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: DLC_Story_LostHarvest_EcolabB
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "DLC_Story_LostHarvest_EcolabB" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: DLC_Story_LostHarvest_ForgottenLab
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "DLC_Story_LostHarvest_ForgottenLab" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Story_ArtOfKanly
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Story_ArtOfKanly" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Dungeon_Hephaestus
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Dungeon_Hephaestus" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Dungeon_OldCarthag
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Dungeon_OldCarthag" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Story_Faction_Outpost_Atre
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Story_Faction_Outpost_Atre" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Story_Faction_Outpost_Hark
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Story_Faction_Outpost_Hark" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: Story_HeighlinerDungeon
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "Story_HeighlinerDungeon" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Ecolab_Bronze_Green_089
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Ecolab_Bronze_Green_089" "memory" "6Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Ecolab_Bronze_Green_152
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Ecolab_Bronze_Green_152" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Ecolab_Bronze_Green_024
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Ecolab_Bronze_Green_024" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Ecolab_Bronze_Green_195
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Ecolab_Bronze_Green_195" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Ecolab_Bronze_Green_136
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Ecolab_Bronze_Green_136" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Overland_M_01
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Overland_M_01" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Overland_S_04
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Overland_S_04" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Overland_S_06
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Overland_S_06" "memory" "3Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Story_BanditFortress01
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Story_BanditFortress01" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Overland_S_07
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Overland_S_07" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Overland_S_08
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Overland_S_08" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Dungeon_ThePit
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Dungeon_ThePit" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Story_DestroyedZanovar
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Story_DestroyedZanovar" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Story_OrbitalMonitor
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Story_OrbitalMonitor" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Arrakis_Story_Paranoid_PrayerRoom
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Arrakis_Story_Paranoid_PrayerRoom" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Arrakis_Story_Glutton_DiningRoom
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Arrakis_Story_Glutton_DiningRoom" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        - arguments:
+          - -FarmRegion=Europe
+          - -ini:engine:[FuncomLiveServices]:ServiceAuthToken=__DUNE_FLS_TOKEN__
+          - -RMQGameTlsEnabled=true
+          connectDirector: false
+          dedicatedScaling: true
+          connectionMode: AutoDiscovery
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-server: default
+          ignoreUnreadyDatabase: false
+          image: {{ printf "%s/seabass-server:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          map: CB_Arrakis_Generic_Sietch_Room
+          messageQueues:
+          - argumentNames:
+              hostname: --RMQGameHostname
+              port: --RMQGamePort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: game
+          - argumentNames:
+              hostname: --RMQAdminHostname
+              port: --RMQAdminPort
+            mode: Internal
+            port: amqp
+            serviceLabelSelector:
+              matchLabels:
+                messagequeue: admin
+          replicas: 0
+          resources:{{ include "dune.mapResources" (dict "root" . "map" "CB_Arrakis_Generic_Sietch_Room" "memory" "2Gi") | nindent 12 }}
+          restartMode: Individual
+          runCommand: /home/dune/run.sh
+          schedulerName: default-scheduler
+          storageMode: Combined
+          terminationGracePeriodSeconds: 120
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+        global:
+          userIniConfig:
+            mountPath: /home/dune/server/DuneSandbox/Saved/UserSettings
+            files:
+              UserServerCustomSettings.ini: {{ tpl (.Files.Get "files/UserServerCustomSettings.ini") . | quote }}
+              UserGame.ini: |-
+                ; Settings in these config files will be applied to every server in the battlegroup
+                ; If you need to override different settings for different servers, use the battlegroup editor instead
+
+                [/Script/DuneSandbox.PvpPveSettings]
+                ; Enable PVP for all partitions
+                m_bShouldForceEnablePvpOnAllPartitions=False
+                ; Enable PVP for specific partitions. Example:
+                ;+m_PvpEnabledPartitions=1
+                ;+m_PvpEnabledPartitions=2
+
+                [/Script/DuneSandbox.SecurityZonesSubsystem]
+                ; Disabling security zones across the board allows for PVP and ability usage everywhere
+                m_bAreSecurityZonesEnabled=True
+
+                [/DeteriorationSystem.ItemDeteriorationConstants]
+                ; Deterioration rate for items | (0 to 10)  0=off
+                UpdateRateInSeconds=1.0
+
+                [/Script/DuneSandbox.SandStormConfig]
+                ; Enable Coriolis storm
+                m_bCoriolisAutoSpawnEnabled={{ ternary "True" "False" .Values.world.gameplay.coriolisStormsEnabled }}
+
+                [/Script/DuneSandbox.BuildingSettings]
+                ; Max number of landclaim extension segments. !Needs to also be applied to each client!
+                ; Also see complementary setting FiefdomLimit in UserServerCustomSettings.ini for increasing count of bases
+                m_MaxNumLandclaimSegments=6
+                ; Number of times a landclaim can be expanded
+                m_BuildingBlueprintMaxExtensions=4
+                m_BaseBackupMaxExtensions=8
+                ; Enable building restriction limits !Needs to also be applied to each client!
+                ; Set to False to remove caps on structure categories placed and global buildable limit
+                ; Also see complementary bIsBuildingRestrictionsEnabled on UserServerCustomSettings.ini for building in restricted areas
+                m_bBuildingRestrictionLimitsEnabled=True
+
+                [/Script/DuneSandbox.SandwormSettings]
+                ; Sandworm threat detections. The higher the value, the earlier the sandworm breaches and attacks.
+                HarvestSpicePickupThreatUnit=10.000000
+                HarvestSpiceCoalesceThreatUnit=10.000000
+                HarvestFlourSandPickupThreatUnit=10.000000
+                HarvestFlourSandCoalesceThreatUnit=10.000000
+                WalkingThreatPerSec=15.000000
+                CrouchingThreatPerSec=15.000000
+                RunningThreatPerSec=20.000000
+                SprintingThreatPerSec=20.000000
+                HyperSprintingThreatPerSec=90.000000
+                DashingThreatPerSec=90.000000
+                SuspendingThreatPerSec=200.000000
+                DrumsandThreatPerSec=200.000000
+                ShieldingThreatPerSec=500.000000
+              UserEngine.ini: {{ tpl (.Files.Get "files/UserEngine.ini") . | quote }}
+  stop: {{ .Values.world.stop }}
+  storage:
+    class: {{ .Values.storage.class | quote }}
+    size: {{ .Values.storage.sharedSize | quote }}
+    accessModes:
+    - ReadWriteMany
+  title: {{ .Values.world.title | quote }}
+  utilities:
+    director:
+      metadata:
+        creationTimestamp: null
+      spec:
+        configFiles:
+          files:
+            director.ini: |-
+              [ Battlegroup ]
+              AuthorizationPreset = BattlegroupInternal
+
+              [ InstancingModes ]
+              DeepDesert_1=ClassicalInstancing
+
+              [ CB_Dungeon_Hephaestus ]
+              NumExtraServers = 0
+
+              [ CB_Dungeon_OldCarthag ]
+              NumExtraServers = 0
+
+              [ CB_Ecolab_Bronze_Green_024 ]
+              NumExtraServers = 0
+
+              [ CB_Ecolab_Bronze_Green_089 ]
+              NumExtraServers = 0
+
+              [ CB_Ecolab_Bronze_Green_136 ]
+              NumExtraServers = 0
+
+              [ CB_Ecolab_Bronze_Green_152 ]
+              NumExtraServers = 0
+
+              [ CB_Ecolab_Bronze_Green_195 ]
+              NumExtraServers = 0
+
+              [ CB_Overland_M_01 ]
+              NumExtraServers = 0
+
+              [ CB_Overland_S_04 ]
+              NumExtraServers = 0
+
+              [ CB_Overland_S_05 ]
+              NumExtraServers = 0
+
+              [ CB_Overland_S_06 ]
+              NumExtraServers = 0
+
+              [ CB_Overland_S_07 ]
+              NumExtraServers = 0
+
+              [ CB_Overland_S_08 ]
+              NumExtraServers = 0
+
+              [ CB_Dungeon_ThePit ]
+              NumExtraServers = 0
+
+              [ CB_Story_BanditFortress01 ]
+              NumExtraServers = 0
+
+              [ CB_Story_DestroyedZanovar ]
+              NumExtraServers = 0
+
+              [ CB_Story_OrbitalMonitor ]
+              NumExtraServers = 0
+
+              [ CB_Arrakis_Story_Paranoid_PrayerRoom ]
+              NumExtraServers = 0
+
+              [ CB_Arrakis_Story_Glutton_DiningRoom ]
+              NumExtraServers = 0
+
+              [ CB_Arrakis_Generic_Sietch_Room ]
+              NumExtraServers = 0
+
+              [ SH_Arrakeen ]
+              NumExtraServers = 0
+              MinServers = 0
+
+              [ SH_HarkoVillage ]
+              NumExtraServers = 0
+              MinServers = 0
+
+              [ DeepDesert_1 ]
+              NumExtraServers = 0
+              MinServers = 0
+
+              [ Story_ArtOfKanly ]
+              EnableAutomaticInstanceScaling = true
+              NumExtraServers = 0
+
+              [ Story_ProcesVerbal ]
+              EnableAutomaticInstanceScaling = true
+              NumExtraServers = 0
+
+              [ Story_Faction_Outpost_Atre ]
+              NumExtraServers = 0
+
+              [ Story_Faction_Outpost_Hark ]
+              NumExtraServers = 0
+
+              [ Story_HeighlinerDungeon ]
+              NumExtraServers = 0
+
+              [ DLC_Story_LostHarvest_EcolabA ]
+              EnableAutomaticInstanceScaling = true
+              NumExtraServers = 0
+              MinServers = 0
+
+              [ DLC_Story_LostHarvest_EcolabB ]
+              EnableAutomaticInstanceScaling = true
+              NumExtraServers = 0
+              MinServers = 0
+
+              [ DLC_Story_LostHarvest_ForgottenLab ]
+              EnableAutomaticInstanceScaling = true
+              NumExtraServers = 0
+              MinServers = 0
+          mountPath: /etc/app/conf.d
+        envSecretSelectors:
+        - matchLabels:
+            igw.funcom.com/env-for-battlegroup-director: default
+        envVars:
+        - name: FuncomLiveServices__ServiceAuthToken
+          valueFrom:
+            secretKeyRef:
+              name: server-gateway-secret
+              key: FuncomLiveServices__ServiceAuthToken
+        - name: BATTLEGROUP_REGION_NAME
+          value: Europe
+        - name: FuncomLiveServices__RmqTlsEnabled
+          value: 'true'
+        - name: HOST_DATACENTER_ID
+          value: dune-testing
+        - name: HOST_DATACENTER_IP_ADDRESS
+          value: __DUNE_NODE_IP__
+        image: {{ printf "%s/seabass-server-bg-director:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+        messageQueues:
+        - argumentNames:
+            hostname: --RMQGameHostname
+            port: --RMQGamePort
+          mode: Internal
+          port: amqp
+          serviceLabelSelector:
+            matchLabels:
+              messagequeue: game
+        - argumentNames:
+            hostname: --RMQAdminHostname
+            port: --RMQAdminPort
+          mode: Internal
+          port: amqp
+          serviceLabelSelector:
+            matchLabels:
+              messagequeue: admin
+        resources: {}
+        suspend: false
+        nodeSelector:{{ toYaml .Values.nodeSelector | nindent 10 }}
+    fileBrowser:
+      metadata:
+        creationTimestamp: null
+      spec:
+        image: {{ printf "%s/filebrowser/filebrowser:%s" (trimSuffix "/" .Values.images.filebrowser.registry) .Values.images.filebrowser.version | quote }}
+        suspend: true
+        nodeSelector:{{ toYaml .Values.nodeSelector | nindent 10 }}
+    messageQueues:
+      templates:
+      - metadata:
+          creationTimestamp: null
+          labels:
+            messagequeue: admin
+          name: admin
+        spec:
+          authServiceSelector:
+            matchLabels:
+              role: igw-text-router
+          configs:
+            system: |+
+              auth_backends.1 = $(RMQ_AUTH_BACKEND_1)
+
+              # Milliseconds
+              auth_cache.cache_ttl = 5000
+              auth_cache.cached_backend = http
+
+              auth_http.http_method   = post
+              auth_http.user_path     = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/user
+              auth_http.vhost_path    = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/vhost
+              auth_http.resource_path = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/resource
+              auth_http.topic_path    = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/topic
+
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-message-queue: default
+          envVars:
+          - name: RMQ_AUTH_BACKEND_1
+            value: cache
+          - name: FuncomLiveServices__RmqTlsEnabled
+            value: 'false'
+          image: {{ printf "%s/seabass-server-rabbitmq:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          plugins:
+            system:
+            - rabbitmq_management
+            - rabbitmq_prometheus
+            - rabbitmq_auth_backend_http
+            - rabbitmq_auth_backend_cache
+          resources: {}
+          storageMode: Ephemeral
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+      - metadata:
+          creationTimestamp: null
+          labels:
+            messagequeue: game
+          name: game
+        spec:
+          authServiceSelector:
+            matchLabels:
+              role: igw-text-router
+          configs:
+            system: |+
+              auth_backends.1 = $(RMQ_AUTH_BACKEND_1)
+
+              # Milliseconds
+              auth_cache.cache_ttl = 5000
+              auth_cache.cached_backend = http
+
+              auth_http.http_method   = post
+              auth_http.user_path     = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/user
+              auth_http.vhost_path    = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/vhost
+              auth_http.resource_path = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/resource
+              auth_http.topic_path    = http://$(RMQ_HTTP_AUTH_ADDRESS)/v0/auth/topic
+
+              listeners.tcp = none
+
+              listeners.ssl.default = 5672 # A list of ports to listen on for TLS connections. RabbitMQ can listen on a single interface or multiple ones.
+              ssl_options.cacertfile = /etc/rabbitmq/cacert.pem # Certificate Authority (CA) bundle file path
+              ssl_options.certfile = /etc/rabbitmq/cert.pem # Server certificate file path
+              ssl_options.keyfile       = /etc/rabbitmq/key.pem # Server private key file path
+
+              ssl_options.verify = verify_none # Do not request certificate from client
+
+          envSecretSelectors:
+          - matchLabels:
+              igw.funcom.com/env-for-message-queue: default
+          envVars:
+          - name: RMQ_AUTH_BACKEND_1
+            value: cache
+          - name: FuncomLiveServices__RmqTlsEnabled
+            value: 'true'
+          image: {{ printf "%s/seabass-server-rabbitmq:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+          nodePorts:
+            amqp: 31982
+          plugins:
+            system:
+            - rabbitmq_management
+            - rabbitmq_prometheus
+            - rabbitmq_auth_backend_http
+            - rabbitmq_auth_backend_cache
+          resources: {}
+          storageMode: Ephemeral
+          nodeSelector:{{ toYaml .Values.nodeSelector | nindent 12 }}
+    serverGateway:
+      metadata:
+        creationTimestamp: null
+      spec:
+        apiKeySecret:
+          key: fls-apikey
+          name: server-gateway-secret
+        build:
+          revision: {{ .Values.images.game.revision }}
+        configFiles:
+          mountPath: /etc/app/conf.d
+        dataCenter: Europe
+        database: {}
+        envSecretSelectors:
+        - matchLabels:
+            igw.funcom.com/env-for-server-gateway: default
+        envVars:
+        - name: FuncomLiveServices__ServiceAuthToken
+          valueFrom:
+            secretKeyRef:
+              name: server-gateway-secret
+              key: FuncomLiveServices__ServiceAuthToken
+        - name: FuncomLiveServices__RmqTlsEnabled
+          value: 'true'
+        - name: FuncomLiveServices__BattlegroupAuthorizationPreset
+          value: BattlegroupInternal
+        - name: HOST_DATACENTER_ID
+          value: dune-testing
+        - name: HOST_DATACENTER_IP_ADDRESS
+          value: __DUNE_NODE_IP__
+        image: {{ printf "%s/seabass-server-gateway:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+        messageQueues:
+        - argumentNames:
+            hostname: --RMQGameHostname
+            port: --RMQGamePort
+          mode: Public
+          port: amqp
+          serviceLabelSelector:
+            matchLabels:
+              messagequeue: game
+        resources: {}
+        suspend: false
+        nodeSelector:{{ toYaml .Values.nodeSelector | nindent 10 }}
+    textRouter:
+      metadata:
+        creationTimestamp: null
+      spec:
+        configFiles:
+          mountPath: /etc/app/conf.d
+        databaseRequired: true
+        envSecretSelectors:
+        - matchLabels:
+            igw.funcom.com/env-for-text-router: default
+        envVars:
+        - name: FuncomLiveServices__ServiceAuthToken
+          valueFrom:
+            secretKeyRef:
+              name: server-gateway-secret
+              key: FuncomLiveServices__ServiceAuthToken
+        - name: FuncomLiveServices__RmqTlsEnabled
+          value: 'true'
+        - name: FuncomLiveServices__BattlegroupAuthorizationPreset
+          value: BattlegroupInternal
+        - name: BATTLEGROUP_LANGUAGE
+          value: en-US
+        - name: HOST_DATACENTER_ID
+          value: dune-testing
+        - name: HOST_DATACENTER_IP_ADDRESS
+          value: __DUNE_NODE_IP__
+        image: {{ printf "%s/seabass-server-text-router:%s" (trimSuffix "/" .Values.images.registry) .Values.images.game.version | quote }}
+        messageQueues:
+        - argumentNames:
+            hostname: --RMQAdminHostname
+            port: --RMQAdminPort
+          mode: Internal
+          port: amqp
+          serviceLabelSelector:
+            matchLabels:
+              messagequeue: admin
+        - argumentNames:
+            hostname: --RMQGameHostname
+            port: --RMQGamePort
+          mode: Internal
+          port: amqp
+          serviceLabelSelector:
+            matchLabels:
+              messagequeue: game
+        resources: {}
+        suspend: false
+        nodeSelector:{{ toYaml .Values.nodeSelector | nindent 10 }}

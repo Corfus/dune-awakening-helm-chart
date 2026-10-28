@@ -1,0 +1,6 @@
+/.idea
+*.tgz
+/dist/
+__pycache__/
+secret.yaml
+values.private.yaml

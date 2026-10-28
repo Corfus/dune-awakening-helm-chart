@@ -1,0 +1,151 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '-30'
+    controller-gen.kubebuilder.io/version: v0.18.0
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Prune=false
+  name: battlegroupdirectorstats.igw.funcom.com
+spec:
+  group: igw.funcom.com
+  names:
+    kind: BattleGroupDirectorStats
+    listKind: BattleGroupDirectorStatsList
+    plural: battlegroupdirectorstats
+    shortNames:
+    - igwbgdst
+    singular: battlegroupdirectorstats
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: BattleGroupDirectorStats is the Schema for the BattleGroupDirectorStats API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object.
+
+              Servers should convert recognized schemas to the latest internal value, and
+
+              may reject unrecognized values.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents.
+
+              Servers may infer this from the endpoint the client submits requests to.
+
+              Cannot be updated.
+
+              In CamelCase.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: BattleGroupDirectorStatsSpec defines the more static statistics of a battlegroup director.
+            type: object
+          status:
+            description: BattleGroupDirectorStatsStatus defines the observed dynamic statistics of a battlegroup
+              director.
+            properties:
+              activityRatio:
+                anyOf:
+                - type: integer
+                - type: string
+                description: ActivityRatio describes the battlegroup's activity ratio.
+                x-kubernetes-int-or-string: true
+              playerCounts:
+                description: PlayerCounts describes the player counts observed by the director.
+                properties:
+                  concurrent:
+                    description: Concurrent describes the number of concurrently active users.
+                    type: integer
+                  daily:
+                    description: Daily describes the number of daily active users.
+                    type: integer
+                  weekly:
+                    description: Weekly describes the number of weekly active users.
+                    type: integer
+                type: object
+              serverStates:
+                additionalProperties:
+                  properties:
+                    activityRatio:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      description: ActivityRatio describes the servers's activity ratio.
+                      x-kubernetes-int-or-string: true
+                    lastHeartbeat:
+                      description: LastHeartbeat describes the time in seconds since the last heartbeat was received.
+                      type: integer
+                    players:
+                      description: PlayerCounts describes the server's player data.
+                      properties:
+                        caps:
+                          description: Caps describes the currently configured player number caps.
+                          properties:
+                            concurrentHard:
+                              description: ConcurrentHard describes the hard cap of concurrent players.
+                              type: integer
+                            dau:
+                              description: DAU describes the daily active user cap.
+                              type: integer
+                            hbs:
+                              description: HBS describes the Hagga Basin subfief cap.
+                              type: integer
+                            wau:
+                              description: DAU describes the weekly active user cap.
+                              type: integer
+                          type: object
+                        counts:
+                          description: Counts describes player count information.
+                          properties:
+                            concurrent:
+                              description: Concurrent describes the number of concurrently active users.
+                              type: integer
+                            daily:
+                              description: Daily describes the number of daily active users.
+                              type: integer
+                            weekly:
+                              description: Weekly describes the number of weekly active users.
+                              type: integer
+                          type: object
+                        online:
+                          description: Online describes data of online players.
+                          properties:
+                            actual:
+                              description: Actual describes the number of players which are online.
+                              type: integer
+                            considered:
+                              description: Actual describes the number of players which are considered to be online.
+                              type: integer
+                            inGracePeriod:
+                              description: InTransit describes the number of players in grace period.
+                              type: integer
+                            inQueue:
+                              description: InTransit describes the number of players in queue.
+                              type: integer
+                            inTransit:
+                              description: InTransit describes the number of players in transit.
+                              type: integer
+                            withCompletion:
+                              description: WithCompletion describes the number of players with completion.
+                              type: integer
+                          type: object
+                      type: object
+                  type: object
+                description: ServerStates describes individual server states keyed to their unique identifier.
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}

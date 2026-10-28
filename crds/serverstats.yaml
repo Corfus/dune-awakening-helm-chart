@@ -1,0 +1,234 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '-30'
+    controller-gen.kubebuilder.io/version: v0.18.0
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Prune=false
+  name: serverstats.igw.funcom.com
+spec:
+  group: igw.funcom.com
+  names:
+    kind: ServerStats
+    listKind: ServerStatsList
+    plural: serverstats
+    shortNames:
+    - igwsst
+    singular: serverstats
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.runtime.players
+      name: Players
+      type: integer
+    - jsonPath: .status.runtime.gamePhase
+      name: Phase
+      type: string
+    - jsonPath: .status.runtime.ready
+      name: Ready
+      type: boolean
+    - jsonPath: .spec.area.map
+      name: Map
+      type: string
+    - jsonPath: .spec.area.dimension
+      name: Dim
+      type: integer
+    - jsonPath: .spec.area.partition
+      name: Part
+      type: integer
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: ServerStats is the Schema for the ServerStatss API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object.
+
+              Servers should convert recognized schemas to the latest internal value, and
+
+              may reject unrecognized values.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents.
+
+              Servers may infer this from the endpoint the client submits requests to.
+
+              Cannot be updated.
+
+              In CamelCase.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ServerStatsSpec defines the statistics of a single server pod in a battlegroup.
+            properties:
+              area:
+                description: Area defines the world area the associated server is responsible for.
+                properties:
+                  bounds:
+                    description: Bounds defines size bounds of the server.
+                    properties:
+                      server:
+                        description: Server describes the servers bound size.
+                        properties:
+                          maxX:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MaxX defines the maximum X coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                          maxY:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MaxY defines the maximum Y coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                          minX:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MinX defines the minimum X coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                          minY:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MinY defines the minimum Y coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                        type: object
+                      world:
+                        description: World describes the game world bound size, including all servers in the map.
+                        properties:
+                          maxX:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MaxX defines the maximum X coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                          maxY:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MaxY defines the maximum Y coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                          minX:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MinX defines the minimum X coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                          minY:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: MinY defines the minimum Y coordinate of the bounds.
+                            x-kubernetes-int-or-string: true
+                        type: object
+                    type: object
+                  dimension:
+                    description: Dimension describes the index of the dimension the server's partition is located
+                      in.
+                    format: int32
+                    type: integer
+                  map:
+                    description: Map describes the name of the server's chosen map.
+                    type: string
+                  partition:
+                    description: Partition describes the index of the server's chosen partition.
+                    format: int32
+                    type: integer
+                  sietch:
+                    description: Sietch describes the name of the playerfacing game server.
+                    type: string
+                type: object
+            type: object
+          status:
+            description: ServerStatsStatus defines the observed status of a server.
+            properties:
+              database:
+                description: Database defines the server's database connection status.
+                properties:
+                  currentQuery:
+                    description: CurrentQuery describes the name of the currently running query function.
+                    maxLength: 200
+                    type: string
+                  currentQueryDurationMs:
+                    anyOf:
+                    - type: integer
+                    - type: string
+                    description: CurrentQueryDurationMs describes the duration of the currently running query so
+                      far in milliseconds.
+                    x-kubernetes-int-or-string: true
+                  failedQueries:
+                    description: FailedQueries describes the number of failed queries in the active connection.
+                    format: int64
+                    type: integer
+                  pingMs:
+                    anyOf:
+                    - type: integer
+                    - type: string
+                    description: PingMs describes the ping to the database in milliseconds.
+                    x-kubernetes-int-or-string: true
+                  queueSize:
+                    description: QueueSize describes the current query queue size.
+                    format: int64
+                    type: integer
+                  successfulQueries:
+                    description: SuccessfulQueries describes the number of successfully completed queries using
+                      the active connection.
+                    format: int64
+                    type: integer
+                type: object
+              identity:
+                description: Identity describes the runtime identity of a server.
+                properties:
+                  guid:
+                    description: Guid describes the server's unique identifier within the battlegroup.
+                    type: string
+                  index:
+                    description: Index describes the server's internal index within the battlegroup.
+                    type: integer
+                type: object
+              leadership:
+                description: Leadership defines the server's leadership status.
+                properties:
+                  battlegroup:
+                    description: Battlegroup describes whether the associated server is its battlegroup's leader.
+                    type: boolean
+                  map:
+                    description: Map describes whether the associated server is its map's leader.
+                    type: boolean
+                type: object
+              runtime:
+                description: Runtime describes the runtime state of a server.
+                properties:
+                  gamePhase:
+                    description: GamePhase describes the server's current internal game phase.
+                    type: string
+                  players:
+                    description: Players describes the amount of players actively connected to the server.
+                    format: int32
+                    minimum: 0
+                    type: integer
+                  ready:
+                    description: Ready describes whether the server is ready to receive client connections.
+                    type: boolean
+                  sfps:
+                    anyOf:
+                    - type: integer
+                    - type: string
+                    description: SFPS describes the frames per second the server is running at.
+                    x-kubernetes-int-or-string: true
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources: {}

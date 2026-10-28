@@ -1,0 +1,39 @@
+# Exercise every gameplay value and representative map overrides in source/package CI.
+world:
+  battlEyeEnabled: false
+  pvpMode: NoPVP
+  gameplay:
+    gatheringMultiplier: 2
+    xpMultiplier: 2
+    combatXpMultiplier: 3
+    gatheringXpMultiplier: 4
+    missionXpMultiplier: 5
+    craftingTimeMultiplier: 0
+    craftingCostMultiplier: 0.5
+    buildingCostMultiplier: 0
+    inventoryVolumeMultiplier: 2
+    lootRespawnSpeed: 0.5
+    resourceRespawnSpeed: 2
+    equipmentDropOnDeath: "None"
+    sandwormDeathPenalty: Backpack
+    playerDeathLootRule: NeverAllowOtherPlayers
+    itemDurabilityDrainMultiplier: 0
+    maxDurabilityLossEnabled: false
+    vehicleDurabilityDamageMultiplier: 0.5
+    sandwormsEnabled: false
+    sandstormsEnabled: false
+    coriolisStormsEnabled: false
+    buildingPieceLimitMultiplier: 2
+    maxBases: 5
+    infiniteBuildingStability: true
+    dynamicBuildingDamageEnabled: false
+    thirstMultiplier: 0.5
+    heatBuildupMultiplier: 0
+  mapResources:
+    Survival_1:
+      requests: {cpu: "1", memory: 8Gi}
+      limits: {cpu: "4", memory: 16Gi}
+    DeepDesert_1:
+      requests: {cpu: 500m}
+    CB_Dungeon_Hephaestus:
+      limits: {memory: 4Gi}

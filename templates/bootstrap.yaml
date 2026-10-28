@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-20"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-20"
+rules:
+  - apiGroups: ["igw.funcom.com"]
+    resources: ["battlegroups"]
+    verbs: ["get", "create", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["server-gateway-secret", "rmq-game-secret"]
+    verbs: ["get", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-20"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dune-bootstrap
+subjects:
+  - kind: ServiceAccount
+    name: dune-bootstrap
+    namespace: {{ .Release.Namespace | quote }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: dune-configure-battlegroup
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      serviceAccountName: dune-bootstrap
+      nodeSelector:{{ toYaml .Values.nodeSelector | nindent 8 }}
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: parse-template
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          image: {{ printf "%s/mikefarah/yq:%s" (trimSuffix "/" .Values.images.yq.registry) .Values.images.yq.version | quote }}
+          command: ["/bin/sh", "-ec"]
+          args:
+            - >-
+              yq -o=json /template/battlegroup.yaml > /work/battlegroup.json
+          resources:
+            requests: {cpu: 10m, memory: 64Mi}
+            limits: {memory: 128Mi}
+          volumeMounts:
+            - name: template
+              mountPath: /template
+              readOnly: true
+            - name: work
+              mountPath: /work
+      containers:
+        - name: apply-battlegroup
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          image: {{ printf "%s/library/python:%s" (trimSuffix "/" .Values.images.python.registry) .Values.images.python.version | quote }}
+          command: ["python3", "/scripts/apply-battlegroup.py"]
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {memory: 128Mi}
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+            - name: credentials
+              mountPath: /credentials
+              readOnly: true
+            - name: work
+              mountPath: /work
+      volumes:
+        - name: template
+          configMap:
+            name: dune-battlegroup-template
+        - name: script
+          configMap:
+            name: dune-bootstrap-script
+        - name: credentials
+          secret:
+            secretName: {{ .Values.credentials.existingSecret | quote }}
+        - name: work
+          emptyDir: {}

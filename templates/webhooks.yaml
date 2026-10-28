@@ -1,0 +1,352 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: battlegroupoperator-mutating
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/battlegroupoperator-webhook
+webhooks:
+- name: battlegroup.mutating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: battlegroupoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /mutate-igw-funcom-com-v1-battlegroup
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - battlegroups
+    scope: Namespaced
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: battlegroupoperator-validating
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/battlegroupoperator-webhook
+webhooks:
+- name: battlegroup.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: battlegroupoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-battlegroup
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - battlegroups
+    scope: Namespaced
+- name: datareset.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: battlegroupoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-datareset
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dataresets
+    scope: Namespaced
+- name: serverrestart.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: battlegroupoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-serverrestart
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - serverrestarts
+    scope: Namespaced
+- name: cachedfileoverlay.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: battlegroupoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-cachedfileoverlay
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - cachedfileoverlays
+    scope: Namespaced
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: databaseoperator-validating
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/databaseoperator-webhook
+webhooks:
+- name: databaseoperation.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: databaseoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-databaseoperation
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databaseoperations
+    scope: Namespaced
+- name: databasebackup.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: databaseoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-databasebackup
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databasebackups
+    scope: Namespaced
+- name: databasebackupschedule.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: databaseoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-databasebackupschedule
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databasebackupschedules
+    scope: Namespaced
+- name: databaserestore.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: databaseoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-databaserestore
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databaserestores
+    scope: Namespaced
+- name: databasemigrate.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: databaseoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-databasemigrate
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - databasemigrates
+    scope: Namespaced
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: serveroperator-validating
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/serveroperator-webhook
+webhooks:
+- name: servergroup.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: serveroperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-servergroup
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - servergroups
+    scope: Namespaced
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: utilitiesoperator-mutating
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/utilitiesoperator-webhook
+webhooks:
+- name: imagepreheat.mutating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: utilitiesoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /mutate-igw-funcom-com-v1-imagepreheat
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - imagepreheats
+    scope: Namespaced
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: utilitiesoperator-validating
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/utilitiesoperator-webhook
+webhooks:
+- name: imagepreheat.validating.igw.funcom.com
+  admissionReviewVersions:
+  - v1
+  sideEffects: None
+  failurePolicy: Fail
+  matchPolicy: Equivalent
+  timeoutSeconds: 10
+  clientConfig:
+    service:
+      name: utilitiesoperator-webhook
+      namespace: {{ .Release.Namespace | quote }}
+      path: /validate-igw-funcom-com-v1-imagepreheat
+  rules:
+  - apiGroups:
+    - igw.funcom.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - imagepreheats
+    scope: Namespaced

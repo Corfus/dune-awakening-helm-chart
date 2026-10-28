@@ -1,0 +1,123 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '-30'
+    controller-gen.kubebuilder.io/version: v0.18.0
+    argocd.argoproj.io/sync-options: ServerSideApply=true,Prune=false
+  name: databasebackupschedules.igw.funcom.com
+spec:
+  group: igw.funcom.com
+  names:
+    kind: DatabaseBackupSchedule
+    listKind: DatabaseBackupScheduleList
+    plural: databasebackupschedules
+    shortNames:
+    - igwdbbs
+    singular: databasebackupschedule
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.schedule
+      name: Schedule
+      type: string
+    - jsonPath: .spec.suspend
+      name: Suspend
+      type: boolean
+    - jsonPath: .status.lastScheduleTime
+      name: LastScheduled
+      type: date
+    - jsonPath: .status.lastSuccessfulTime
+      name: LastSuccessful
+      type: date
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: DatabaseBackupSchedule is the Schema for the DatabaseBackupSchedule API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object.
+
+              Servers should convert recognized schemas to the latest internal value, and
+
+              may reject unrecognized values.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents.
+
+              Servers may infer this from the endpoint the client submits requests to.
+
+              Cannot be updated.
+
+              In CamelCase.
+
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DatabaseBackupScheduleSpec defines the details of a physical database backup schedule.
+            properties:
+              battleGroup:
+                description: BattleGroup defines the unqiue identifier of the battlegroup whose database should
+                  be targeted.
+                pattern: '[a-z0-9]([-a-z0-9]*[a-z0-9])?'
+                type: string
+              history:
+                description: History defines the history configuration of the schedule.
+                properties:
+                  limits:
+                    description: Limits defines the amount of recent backups to keep alive before deleting the oldest.
+                    properties:
+                      failure:
+                        default: 3
+                        description: Failure defines the amount of failed backups to keep before deleting the oldest.
+                        minimum: 0
+                        type: integer
+                      success:
+                        default: 1
+                        description: Success defines the amount of successful backups to keep before deleting the
+                          oldest.
+                        minimum: 0
+                        type: integer
+                    type: object
+                type: object
+              schedule:
+                description: 'Schedule defines the cron schedule with which automatic backups are made. If empty,
+                  no backups are taken automatically.
+
+                  The schedule always uses the Etc/UTC timezone.'
+                type: string
+              suspend:
+                description: Suspend defines whether the schedule should be suspended, stopping creation of new
+                  [DatabaseBackup] instances.
+                type: boolean
+            required:
+            - battleGroup
+            - schedule
+            type: object
+          status:
+            description: DatabaseBackupScheduleStatus defines the observed status of a physical database backup
+              schedule.
+            properties:
+              lastScheduleTime:
+                description: LastScheduleTime contains the time when a backup was last successfully scheduled.
+                format: date-time
+                type: string
+              lastSuccessfulTime:
+                description: LastSuccessfulTime contains the time when a backup was last successfully completed.
+                format: date-time
+                type: string
+            type: object
+        type: object
+    selectableFields:
+    - jsonPath: .spec.battleGroup
+    served: true
+    storage: true
+    subresources:
+      status: {}
