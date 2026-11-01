@@ -108,6 +108,23 @@ world:
     thirstMultiplier: 1
     heatBuildupMultiplier: 1
 
+  # Tax settings from the shipped game image. Restart the battlegroup after changes.
+  taxation:
+    # Master tax switch; upstream disables taxes by default.
+    enabled: false
+    # Billing cycle in seconds: 1209600 = 14 days. Must be positive.
+    cycleLengthSeconds: 1209600
+    # Base hourly rates before landclaim/vertical-extension scaling (nonnegative).
+    # Both keys exist upstream; which rate is used depends on the game's tax logic.
+    paymentItemPerHour: 11.905
+    spicePerHour: 11.90475
+    # Ordered multiplier tables from upstream, starting with index 0.
+    # Each list replaces the entire inherited INI array, rather than appending to it.
+    # Entries scale costs by landclaim/vertical-extension count respectively.
+    # Keep enough entries for the counts you allow; out-of-range behavior is unverified.
+    costMultiplierPerLandclaim: [0, 0.5, 1, 1.5, 2, 2.5]
+    costMultiplierPerVerticalExtension: [0, 0.5, 1, 1.5, 2, 2.5]
+
   # Optional CPU/memory requests and limits, keyed by an existing map name.
   # Partial overrides retain that map's original memory limit.
   # Example:

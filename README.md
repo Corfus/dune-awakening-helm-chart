@@ -232,6 +232,38 @@ other advanced building constraints; changing `maxBases` only changes base count
 Avoid conflicting manual overrides of the same keys. Apply a Helm upgrade and
 restart the battlegroup after changing gameplay settings.
 
+### Taxes
+
+`world.taxation` configures `[/Script/DuneSandbox.TaxationSettings]` in the global
+`UserGame.ini`. Defaults match the bundled game image: taxes are disabled.
+
+| Value | Purpose / default |
+|---|---|
+| `enabled` | Master switch; `false` |
+| `cycleLengthSeconds` | Positive integer billing interval in seconds; `1209600` (14 days) |
+| `paymentItemPerHour` | Nonnegative base payment-item rate per hour; `11.905` |
+| `spicePerHour` | Nonnegative base spice rate per hour; `11.90475` |
+| `costMultiplierPerLandclaim` | Ordered nonnegative scaling table; `[0, 0.5, 1, 1.5, 2, 2.5]` |
+| `costMultiplierPerVerticalExtension` | Ordered nonnegative scaling table; `[0, 0.5, 1, 1.5, 2, 2.5]` |
+
+Each multiplier list replaces the inherited INI array, preserving order and duplicate
+entries. Tables start at index zero and scale costs by the corresponding count.
+Keep enough entries for the counts permitted by your building settings; behavior
+beyond the table is unverified. Both hourly rate keys exist in the shipped image;
+the game determines which applies. These are image configuration keys, not
+live-tested guarantees of billing behavior.
+
+For example, to enable taxes with a seven-day cycle while retaining default rates:
+
+```yaml
+world:
+  taxation:
+    enabled: true
+    cycleLengthSeconds: 604800
+```
+
+Apply a Helm upgrade and restart the battlegroup after changing these settings.
+
 ### Per-map CPU and memory
 
 `world.mapResources` accepts existing map names with `requests` and `limits`, each

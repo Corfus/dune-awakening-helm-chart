@@ -1763,6 +1763,25 @@ spec:
                 ; Enable Coriolis storm
                 m_bCoriolisAutoSpawnEnabled={{ ternary "True" "False" .Values.world.gameplay.coriolisStormsEnabled }}
 
+                [/Script/DuneSandbox.TaxationSettings]
+                ; Master switch. The shipped image disables taxation by default.
+                m_bTaxationEnabled={{ ternary "True" "False" .Values.world.taxation.enabled }}
+                ; Billing interval in seconds (1209600 = 14 days).
+                m_TaxationCycleLengthSeconds={{ .Values.world.taxation.cycleLengthSeconds | int64 }}
+                ; Base hourly rates before scaling; the game determines which rate applies.
+                m_PaymentItemPerHour={{ .Values.world.taxation.paymentItemPerHour }}
+                m_SpicePerHour={{ .Values.world.taxation.spicePerHour }}
+                ; Replace inherited arrays. Ordered entries scale costs by count, from index 0.
+                ; Repeated entries are intentional: Unreal's . operator preserves duplicates.
+                !m_CostMultiplierPerLandclaim=ClearArray
+{{ range .Values.world.taxation.costMultiplierPerLandclaim }}
+                .m_CostMultiplierPerLandclaim={{ . }}
+{{ end }}
+                !m_CostMultiplierPerVerticalExtension=ClearArray
+{{ range .Values.world.taxation.costMultiplierPerVerticalExtension }}
+                .m_CostMultiplierPerVerticalExtension={{ . }}
+{{ end }}
+
                 [/Script/DuneSandbox.BuildingSettings]
                 ; Max number of landclaim extension segments. !Needs to also be applied to each client!
                 ; Also see complementary setting FiefdomLimit in UserServerCustomSettings.ini for increasing count of bases

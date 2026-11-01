@@ -157,7 +157,8 @@
         "stop",
         "pvpMode",
         "gameplay",
-        "mapResources"
+        "mapResources",
+        "taxation"
       ],
       "properties": {
         "title": {
@@ -486,6 +487,51 @@
             },
             "CB_Arrakis_Generic_Sietch_Room": {
               "$ref": "#/definitions/mapResources"
+            }
+          }
+        },
+        "taxation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "cycleLengthSeconds",
+            "paymentItemPerHour",
+            "spicePerHour",
+            "costMultiplierPerLandclaim",
+            "costMultiplierPerVerticalExtension"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "cycleLengthSeconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "paymentItemPerHour": {
+              "type": "number",
+              "minimum": 0
+            },
+            "spicePerHour": {
+              "type": "number",
+              "minimum": 0
+            },
+            "costMultiplierPerLandclaim": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "costMultiplierPerVerticalExtension": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "number",
+                "minimum": 0
+              }
             }
           }
         }

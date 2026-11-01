@@ -94,7 +94,8 @@ class WorldSettingsTests(unittest.TestCase):
         files = world['spec']['serverGroup']['template']['spec']['global']['userIniConfig']['files']
         configs = {}
         for name, content in files.items():
-            config = configparser.ConfigParser(interpolation=None)
+            # Unreal INI arrays intentionally repeat keys; array contents are checked raw.
+            config = configparser.ConfigParser(interpolation=None, strict=False)
             config.optionxform = str
             config.read_string(content)
             configs[name] = config
@@ -140,6 +141,41 @@ class WorldSettingsTests(unittest.TestCase):
             self.assertEqual(engine.getboolean('Sandworm.SandwormDangerZonesEnabled'), values['sandwormsEnabled'])
         self.assertEqual(engine['Bgd.ServerLoginPassword'], '""')
         return configs
+
+    def test_taxation_defaults_and_overrides(self):
+        defaults = yaml.safe_load((ROOT / 'values.yaml').read_text())['world']['taxation']
+        for values in (defaults, dict(enabled=True, cycleLengthSeconds=604800,
+                                     paymentItemPerHour=0, spicePerHour=2.5,
+                                     costMultiplierPerLandclaim=[0, 0, 0.25],
+                                     costMultiplierPerVerticalExtension=[1, 1])):
+            with self.subTest(values=values):
+                world = self.world({'taxation': values})
+                text = world['spec']['serverGroup']['template']['spec']['global']['userIniConfig']['files']['UserGame.ini']
+                section = self.configs({'taxation': values})['UserGame.ini']['/Script/DuneSandbox.TaxationSettings']
+                self.assertEqual(section.getboolean('m_bTaxationEnabled'), values['enabled'])
+                self.assertEqual(section.getint('m_TaxationCycleLengthSeconds'), values['cycleLengthSeconds'])
+                self.assertEqual(section.getfloat('m_PaymentItemPerHour'), values['paymentItemPerHour'])
+                self.assertEqual(section.getfloat('m_SpicePerHour'), values['spicePerHour'])
+                for key, ini in [('costMultiplierPerLandclaim', 'm_CostMultiplierPerLandclaim'),
+                                 ('costMultiplierPerVerticalExtension', 'm_CostMultiplierPerVerticalExtension')]:
+                    self.assertIn('!' + ini + '=ClearArray', text)
+                    entries = [float(line.split('=', 1)[1]) for line in text.splitlines()
+                               if line.startswith('.' + ini + '=')]
+                    self.assertEqual(entries, values[key])
+
+    def test_invalid_taxation_settings(self):
+        for key, values in {
+            'enabled': ['true', 1, None],
+            'cycleLengthSeconds': [0, -1, 1.5, '60', None],
+            'paymentItemPerHour': [-1, '1', None],
+            'spicePerHour': [-1, '1', None],
+            'costMultiplierPerLandclaim': [[], [-1], ['1'], None],
+            'costMultiplierPerVerticalExtension': [[], [-1], [True], None],
+            'typo': [1],
+        }.items():
+            for value in values:
+                with self.subTest(key=key, value=value):
+                    self.assert_rejected({'taxation': {key: value}})
 
     def test_every_public_gameplay_option_has_render_expectations(self):
         defaults = yaml.safe_load((ROOT / 'values.yaml').read_text())['world']['gameplay']
