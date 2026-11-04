@@ -157,6 +157,102 @@ name and image settings. Defaults retain
 20Gi RWO database storage, 5Gi RWX shared storage, and upstream map limits
 (Survival 12Gi, Overmap 2Gi). Additional maps increase memory requirements.
 
+### Daily database backups
+
+Enable the operator's physical database backups in your values file:
+
+```yaml
+backups:
+  enabled: true
+  schedule: "0 3 * * *"
+```
+
+This schedules a backup every day at 03:00 UTC. Apply the values with your usual
+`helm upgrade --install` command. Backups are disabled by default. The operator
+manages scheduling through the database deployment; the chart does not create a
+separate Kubernetes CronJob. Disabling `backups.enabled` removes the schedule and
+turns off physical backup support, including WAL archiving.
+
+The shipped `igw-postgres:17.4-alpine-fc-13` image uses Barman's S3 tools for
+both base backups and WAL archives. The destination is
+`s3://<bucket>/artifacts/<world-id>/database-backups/` (`world-id` comes from
+your credentials Secret). When enabled, the chart runs a single SeaweedFS S3
+service at `http://dune-backups.<namespace>.svc:8333`, pre-creates the bucket,
+and mounts a dedicated `dune-backups` PVC at `/data`. Both object data and filer
+metadata live on that PVC. There is no backup directory mounted in the database
+pod itself.
+
+Provision a separate Secret **before enabling backups**, with two nonempty keys:
+`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Use your secret manager or
+SealedSecrets; do not commit plaintext credentials. Label the Secret so the
+database operator can discover it:
+
+```sh
+kubectl -n dune label secret dune-backup-credentials \
+  igw.funcom.com/backup-credentials=dune-backup-credentials --overwrite
+```
+
+Persist that label in the Secret/SealedSecret manifest for GitOps. If changing
+`backups.existingSecret`, set the label value to the new Secret name as well.
+SeaweedFS reads those same keys through explicit Secret references. The chart
+also creates a labeled configuration Secret containing the internal endpoint,
+region and bucket, which the database and restore utility pods import alongside
+the credentials. Avoid defining conflicting AWS/Barman variables in other
+Secrets selected by the database operator.
+
+Optional storage settings (independent of the game database PVC):
+
+```yaml
+backups:
+  enabled: true
+  schedule: "0 3 * * *"
+  existingSecret: dune-backup-credentials
+  bucket: dune-backups
+  storage:
+    class: "" # Omit storageClassName to use the cluster default.
+    size: 100Gi
+```
+
+The storage service uses `docker.io/chrislusf/seaweedfs:4.52`; registry and version
+are configurable under `backups.image`. See the
+[SeaweedFS release](https://github.com/seaweedfs/seaweedfs/releases/tag/4.52) and
+[mini implementation](https://github.com/seaweedfs/seaweedfs/blob/4.52/weed/command/mini.go).
+Only its S3 port is exposed through a ClusterIP Service. An always-created
+NetworkPolicy restricts ingress to S3 from the release namespace, blocking the
+storage engine's unauthenticated internal APIs. **A NetworkPolicy-enforcing CNI
+is required**, even when `networkPolicy.enabled` is false. Other policies must
+not grant access to the storage pod's internal ports. Traffic uses HTTP inside
+the cluster; restrict cluster access and protect the PVC and credentials.
+
+The PVC has Helm keep and Argo CD prune/delete protection, so disabling backups
+or uninstalling the release retains its data. Deleting it manually can delete
+all backups, depending on the storage class reclaim policy. Disabling backups
+stops the S3 service too; re-enable it before accessing retained data. PVC size
+changes require a storage class that supports expansion. Changing the bucket,
+credentials, or storage class does not migrate existing data; plan those changes
+separately. This is a single-instance destination, not an off-cluster copy.
+
+No object expiration policy is configured. Monitor free space and define a
+Barman-aware retention policy that preserves the base backups and WAL needed for
+recovery. Backup-resource history alone is not a storage retention guarantee.
+Verify a successful backup and restoration with your deployed operator before
+relying on this feature.
+
+Inspect backup requests and results in the release namespace:
+
+```sh
+kubectl -n dune get databasebackupschedules.igw.funcom.com
+kubectl -n dune get databasebackups.igw.funcom.com
+```
+
+Check each backup's status, including `phase` and `identifier`. The bundled
+`DatabaseRestore` API references that identifier to select a backup; test the
+operator's restore procedure in an isolated environment before relying on it.
+Keep `credentials.existingSecret` backed up securely alongside the database.
+These are database backups; they do not back up arbitrary shared-volume files.
+
+### World settings
+
 Set anti-cheat and combat rules in your values file:
 
 ```yaml
@@ -178,11 +274,31 @@ anti-cheat enforcement or combat rules in a running game.
 
 All settings below live under `world.gameplay`. Numeric multipliers default to `1`.
 Zero disables the corresponding effect only where the allowed range includes zero.
-The shipped INI settings define these ranges; gameplay behavior still requires
+These keys and ranges come from the shipped `UserServerCustomSettings.ini` in
+Funcom’s [self-hosted server package](https://duneawakening.com/self-hosted-servers/).
+The chart exposes the existing settings without changing their defaults; gameplay behavior still requires
 verification in a running server.
 
 | Value | Allowed values | Purpose / default |
 |---|---|---|
+| `waterExtractionRate` | 0.1–10 | Water extraction time; higher takes longer |
+| `fuelBurnTimeMultiplier` | 0–10 | Fuel burn multiplier; zero removes fuel burn |
+| `playerDamageToPlayer` | 0.1–10 | Player damage to players |
+| `playerDamageToNPC` | 0.1–10 | Player damage to NPCs |
+| `playerDamageToVehicle` | 0.1–10 | Player damage to vehicles |
+| `npcHealth` | 0.1–10 | NPC health |
+| `npcDamageToPlayer` | 0.1–10 | NPC damage to players |
+| `npcDamageToNPC` | 0.1–10 | NPC damage to NPCs |
+| `npcRespawnMultiplier` | 0.1–10 | NPC respawn speed; higher respawns sooner |
+| `pvpDamageStructures` | 0–10 | Player damage to unshielded bases; zero disables it |
+| `playerStaminaDrain` | 0.1–10 | Stamina drain; higher drains faster |
+| `intelPointsGainMultiplier` | 0–10 | Intel Point gain; zero disables it |
+| `playerShieldDamageAbsorptionMultiplier` | 0.1–10 | Player shield absorption; higher lasts longer |
+| `npcShieldDamageAbsorptionMultiplier` | 0.1–10 | NPC shield absorption; higher lasts longer |
+| `landsraadContributionMultiplier` | 0–10 | Landsraad contribution gain |
+| `landsraadSpecializationXpMultiplier` | 0–10 | Landsraad specialization XP gain |
+| `landsraadFactionStandingMultiplier` | 0–10 | Landsraad faction standing changes |
+| `buildingRestrictionsEnabled` | boolean | Enforce no-build zones; default `true` |
 | `gatheringMultiplier` | 0.1–10 | Hand and vehicle mining yield |
 | `xpMultiplier` | 0–10 | Global XP gain |
 | `combatXpMultiplier` | 0–10 | Combat XP gain |

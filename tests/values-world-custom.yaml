@@ -3,6 +3,24 @@ world:
   battlEyeEnabled: false
   pvpMode: NoPVP
   gameplay:
+    waterExtractionRate: 0.5
+    fuelBurnTimeMultiplier: 0.5
+    playerDamageToPlayer: 0.5
+    playerDamageToNPC: 0.5
+    playerDamageToVehicle: 0.5
+    npcHealth: 0.5
+    npcDamageToPlayer: 0.5
+    npcDamageToNPC: 0.5
+    npcRespawnMultiplier: 0.5
+    pvpDamageStructures: 0.5
+    playerStaminaDrain: 0.5
+    intelPointsGainMultiplier: 0.5
+    playerShieldDamageAbsorptionMultiplier: 0.5
+    npcShieldDamageAbsorptionMultiplier: 0.5
+    landsraadContributionMultiplier: 0.5
+    landsraadSpecializationXpMultiplier: 0.5
+    landsraadFactionStandingMultiplier: 0.5
+    buildingRestrictionsEnabled: false
     gatheringMultiplier: 2
     xpMultiplier: 2
     combatXpMultiplier: 3

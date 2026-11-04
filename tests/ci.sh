@@ -33,6 +33,13 @@ helm template dune . --namespace dune --include-crds \
   -f tests/values-world-custom.yaml > "$render_dir/world.yaml"
 python3 tests/validate-render.py "$render_dir/world.yaml" dune
 
+# Exercise PVC-backed S3 backup wiring, including opt-in network policies.
+helm template dune . --namespace dune --include-crds \
+  --set backups.enabled=true --set networkPolicy.enabled=true \
+  --set-string 'networkPolicy.nodeCIDRs[0]=192.0.2.10/32' \
+  > "$render_dir/backups.yaml"
+python3 tests/validate-render.py "$render_dir/backups.yaml" dune
+
 # Validate the archive that will actually be published, including .helmignore.
 mkdir -p dist
 helm package . --destination dist
@@ -51,3 +58,10 @@ helm template dune "dist/dune-awakening-${chart_version}.tgz" \
   > "$render_dir/packaged-world.yaml"
 python3 tests/validate-render.py "$render_dir/packaged-world.yaml" dune
 diff -u "$render_dir/world.yaml" "$render_dir/packaged-world.yaml"
+
+helm template dune "dist/dune-awakening-${chart_version}.tgz" \
+  --namespace dune --include-crds \
+  --set backups.enabled=true --set networkPolicy.enabled=true \
+  --set-string 'networkPolicy.nodeCIDRs[0]=192.0.2.10/32' \
+  > "$render_dir/packaged-backups.yaml"
+diff -u "$render_dir/backups.yaml" "$render_dir/packaged-backups.yaml"

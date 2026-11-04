@@ -349,6 +349,112 @@
               "minimum": 0,
               "maximum": 10,
               "description": "HeatBuildupRate"
+            },
+            "waterExtractionRate": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "WaterExtractionRate: Water extraction time; higher takes longer"
+            },
+            "fuelBurnTimeMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "FuelBurnTimeMultiplier: Fuel burn multiplier; zero removes fuel burn"
+            },
+            "playerDamageToPlayer": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "PlayerDamageToPlayer: Player damage to players"
+            },
+            "playerDamageToNPC": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "PlayerDamageToNPC: Player damage to NPCs"
+            },
+            "playerDamageToVehicle": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "PlayerDamageToVehicle: Player damage to vehicles"
+            },
+            "npcHealth": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "NPCHealth: NPC health"
+            },
+            "npcDamageToPlayer": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "NPCDamageToPlayer: NPC damage to players"
+            },
+            "npcDamageToNPC": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "NPCDamageToNPC: NPC damage to NPCs"
+            },
+            "npcRespawnMultiplier": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "NPCRespawnMultiplier: NPC respawn speed; higher respawns sooner"
+            },
+            "pvpDamageStructures": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "PVPDamageStructures: Player damage to unshielded bases; zero disables it"
+            },
+            "playerStaminaDrain": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "PlayerStaminaDrain: Stamina drain; higher drains faster"
+            },
+            "intelPointsGainMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "IntelPointsGainMultiplier: Intel Point gain; zero disables it"
+            },
+            "playerShieldDamageAbsorptionMultiplier": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "PlayerShieldDamageAbsorptionMultiplier: Player shield absorption; higher lasts longer"
+            },
+            "npcShieldDamageAbsorptionMultiplier": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10,
+              "description": "NPCShieldDamageAbsorptionMultiplier: NPC shield absorption; higher lasts longer"
+            },
+            "landsraadContributionMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "LandsraadContributionMultiplier: Landsraad contribution gain"
+            },
+            "landsraadSpecializationXpMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "LandsraadSpecializationXpMultiplier: Landsraad specialization XP gain"
+            },
+            "landsraadFactionStandingMultiplier": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10,
+              "description": "LandsraadFactionStandingMultiplier: Landsraad faction standing changes"
+            },
+            "buildingRestrictionsEnabled": {
+              "type": "boolean",
+              "description": "bIsBuildingRestrictionsEnabled: enforce no-build zones"
             }
           },
           "required": [
@@ -376,7 +482,25 @@
             "infiniteBuildingStability",
             "dynamicBuildingDamageEnabled",
             "thirstMultiplier",
-            "heatBuildupMultiplier"
+            "heatBuildupMultiplier",
+            "waterExtractionRate",
+            "fuelBurnTimeMultiplier",
+            "playerDamageToPlayer",
+            "playerDamageToNPC",
+            "playerDamageToVehicle",
+            "npcHealth",
+            "npcDamageToPlayer",
+            "npcDamageToNPC",
+            "npcRespawnMultiplier",
+            "pvpDamageStructures",
+            "playerStaminaDrain",
+            "intelPointsGainMultiplier",
+            "playerShieldDamageAbsorptionMultiplier",
+            "npcShieldDamageAbsorptionMultiplier",
+            "landsraadContributionMultiplier",
+            "landsraadSpecializationXpMultiplier",
+            "landsraadFactionStandingMultiplier",
+            "buildingRestrictionsEnabled"
           ]
         },
         "mapResources": {
@@ -770,6 +894,76 @@
         "properties": {
           "nodeCIDRs": {
             "minItems": 1
+          }
+        }
+      }
+    },
+    "backups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "schedule",
+        "existingSecret",
+        "bucket",
+        "storage",
+        "image"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "schedule": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+(\\s+\\S+){4}$",
+          "description": "Five-field cron schedule, interpreted by the operator in UTC."
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63,
+          "pattern": "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        },
+        "bucket": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 63,
+          "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$"
+        },
+        "storage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "class",
+            "size"
+          ],
+          "properties": {
+            "class": {
+              "type": "string"
+            },
+            "size": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*(Mi|Gi|Ti)$"
+            }
+          }
+        },
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "registry",
+            "version"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }

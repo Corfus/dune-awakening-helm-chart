@@ -59,6 +59,22 @@ storage:
   databaseSize: 20Gi
   sharedSize: 5Gi
 
+# Operator-managed physical backups and a PVC-backed S3 destination.
+backups:
+  enabled: false
+  # Always interpreted in UTC.
+  schedule: "0 3 * * *"
+  # Must contain AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and carry the label
+  # igw.funcom.com/backup-credentials: <this Secret name>.
+  existingSecret: dune-backup-credentials
+  bucket: dune-backups
+  storage:
+    class: ""
+    size: 100Gi
+  image:
+    registry: docker.io
+    version: "4.52"
+
 world:
   title: Dyne Awakenyng
   stop: false
@@ -107,6 +123,44 @@ world:
     # Survival: 0–10; zero disables thirst/heat buildup.
     thirstMultiplier: 1
     heatBuildupMultiplier: 1
+
+    # Additional settings from the shipped UserServerCustomSettings.ini.
+    # Water extraction time; higher takes longer. Range: 0.1–10.
+    waterExtractionRate: 1
+    # Fuel burn multiplier; zero removes fuel burn. Range: 0–10.
+    fuelBurnTimeMultiplier: 1
+    # Player damage to players. Range: 0.1–10.
+    playerDamageToPlayer: 1
+    # Player damage to NPCs. Range: 0.1–10.
+    playerDamageToNPC: 1
+    # Player damage to vehicles. Range: 0.1–10.
+    playerDamageToVehicle: 1
+    # NPC health. Range: 0.1–10.
+    npcHealth: 1
+    # NPC damage to players. Range: 0.1–10.
+    npcDamageToPlayer: 1
+    # NPC damage to NPCs. Range: 0.1–10.
+    npcDamageToNPC: 1
+    # NPC respawn speed; higher respawns sooner. Range: 0.1–10.
+    npcRespawnMultiplier: 1
+    # Player damage to unshielded bases; zero disables it. Range: 0–10.
+    pvpDamageStructures: 1
+    # Stamina drain; higher drains faster. Range: 0.1–10.
+    playerStaminaDrain: 1
+    # Intel Point gain; zero disables it. Range: 0–10.
+    intelPointsGainMultiplier: 1
+    # Player shield absorption; higher lasts longer. Range: 0.1–10.
+    playerShieldDamageAbsorptionMultiplier: 1
+    # NPC shield absorption; higher lasts longer. Range: 0.1–10.
+    npcShieldDamageAbsorptionMultiplier: 1
+    # Landsraad contribution gain. Range: 0–10.
+    landsraadContributionMultiplier: 1
+    # Landsraad specialization XP gain. Range: 0–10.
+    landsraadSpecializationXpMultiplier: 1
+    # Landsraad faction standing changes. Range: 0–10.
+    landsraadFactionStandingMultiplier: 1
+    # Enforce no-build zones (upstream default).
+    buildingRestrictionsEnabled: true
 
   # Tax settings from the shipped game image. Restart the battlegroup after changes.
   taxation:

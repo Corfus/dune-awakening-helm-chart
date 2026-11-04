@@ -8,7 +8,8 @@ objects = [obj for obj in objects if obj]
 indexed = {(obj['kind'], obj['metadata']['name']): obj for obj in objects}
 assert len(indexed) == len(objects), 'Duplicate resources'
 assert sum(obj['kind'] == 'CustomResourceDefinition' for obj in objects) == 26
-assert sum(obj['kind'] == 'Deployment' for obj in objects) == 4
+backups_enabled = ('Deployment', 'dune-backups') in indexed
+assert sum(obj['kind'] == 'Deployment' for obj in objects) == 4 + int(backups_enabled)
 world = yaml.safe_load(indexed['ConfigMap', 'dune-battlegroup-template']['data']['battlegroup.yaml'])
 assert world['kind'] == 'BattleGroup'
 assert world['spec']['utilities']['fileBrowser']['spec']['suspend'] is True
@@ -28,6 +29,8 @@ allowed = {
     'seabass-server-gateway', 'seabass-server-text-router', 'yq', 'python',
     'pghero', 'filebrowser',
 }
+if backups_enabled:
+    allowed.add('seaweedfs')
 images = []
 def walk(obj):
     if isinstance(obj, dict):

@@ -33,6 +33,9 @@ spec:
       - key: role
         operator: NotIn
         values: [igw-filebrowser]
+      - key: app.kubernetes.io/name
+        operator: NotIn
+        values: [dune-backups]
   policyTypes: [Ingress]
   ingress:
     - from:
@@ -52,6 +55,9 @@ spec:
       - key: role
         operator: NotIn
         values: [igw-filebrowser]
+      - key: app.kubernetes.io/name
+        operator: NotIn
+        values: [dune-backups]
   policyTypes: [Ingress]
   ingress:
     - from:
@@ -150,6 +156,9 @@ spec:
       - key: role
         operator: NotIn
         values: [igw-filebrowser]
+      - key: app.kubernetes.io/name
+        operator: NotIn
+        values: [dune-backups]
   policyTypes: [Ingress]
   ingress:
     - from:

@@ -22,6 +22,23 @@ ROOT = Path(__file__).resolve().parents[1]
 CUSTOM = '/Script/DuneSandbox.UserServerCustomSettings'
 # Independent expectations: Helm values -> actual game keys and upstream ranges.
 NUMBERS = {
+    'waterExtractionRate': ('WaterExtractionRate', 0.1, 10),
+    'fuelBurnTimeMultiplier': ('FuelBurnTimeMultiplier', 0, 10),
+    'playerDamageToPlayer': ('PlayerDamageToPlayer', 0.1, 10),
+    'playerDamageToNPC': ('PlayerDamageToNPC', 0.1, 10),
+    'playerDamageToVehicle': ('PlayerDamageToVehicle', 0.1, 10),
+    'npcHealth': ('NPCHealth', 0.1, 10),
+    'npcDamageToPlayer': ('NPCDamageToPlayer', 0.1, 10),
+    'npcDamageToNPC': ('NPCDamageToNPC', 0.1, 10),
+    'npcRespawnMultiplier': ('NPCRespawnMultiplier', 0.1, 10),
+    'pvpDamageStructures': ('PVPDamageStructures', 0, 10),
+    'playerStaminaDrain': ('PlayerStaminaDrain', 0.1, 10),
+    'intelPointsGainMultiplier': ('IntelPointsGainMultiplier', 0, 10),
+    'playerShieldDamageAbsorptionMultiplier': ('PlayerShieldDamageAbsorptionMultiplier', 0.1, 10),
+    'npcShieldDamageAbsorptionMultiplier': ('NPCShieldDamageAbsorptionMultiplier', 0.1, 10),
+    'landsraadContributionMultiplier': ('LandsraadContributionMultiplier', 0, 10),
+    'landsraadSpecializationXpMultiplier': ('LandsraadSpecializationXpMultiplier', 0, 10),
+    'landsraadFactionStandingMultiplier': ('LandsraadFactionStandingMultiplier', 0, 10),
     'gatheringMultiplier': ('GatheringAmount', .1, 10),
     'xpMultiplier': ('GlobalXpMultiplier', 0, 10),
     'combatXpMultiplier': ('CombatXp', 0, 10),
@@ -40,6 +57,7 @@ NUMBERS = {
     'heatBuildupMultiplier': ('HeatBuildupRate', 0, 10),
 }
 BOOLS = {
+    'buildingRestrictionsEnabled': ('bIsBuildingRestrictionsEnabled', True),
     'maxDurabilityLossEnabled': ('bEnableItemMaxDurabilityLoss', True),
     'sandwormsEnabled': ('bAllowSandworms', True),
     'sandstormsEnabled': ('bAllowSandstorms', True),

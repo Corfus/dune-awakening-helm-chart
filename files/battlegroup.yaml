@@ -33,10 +33,19 @@ spec:
             creationTimestamp: null
           spec:
             allowConfigHotReload: true
-            enablePhysicalBackups: false
+            enablePhysicalBackups: {{ .Values.backups.enabled }}
+{{- if .Values.backups.enabled }}
+            backupSchedule: {{ .Values.backups.schedule | quote }}
+{{- end }}
             envSecretSelectors:
             - matchLabels:
                 igw.funcom.com/env-for-database: default
+{{- if .Values.backups.enabled }}
+            - matchLabels:
+                igw.funcom.com/backup-credentials: {{ .Values.backups.existingSecret | quote }}
+            - matchLabels:
+                igw.funcom.com/backup-config: dune
+{{- end }}
             gameDatabaseName: dune
             image: {{ printf "%s/igw-postgres:%s" (trimSuffix "/" .Values.images.registry) .Values.images.postgres.version | quote }}
             password: __DUNE_DATABASE_PASSWORD__
@@ -55,6 +64,12 @@ spec:
               envSecretSelectors:
               - matchLabels:
                   igw.funcom.com/env-for-database-utils: default
+{{- if .Values.backups.enabled }}
+              - matchLabels:
+                  igw.funcom.com/backup-credentials: {{ .Values.backups.existingSecret | quote }}
+              - matchLabels:
+                  igw.funcom.com/backup-config: dune
+{{- end }}
               supplySuperUser: true
               useArtifactBridge: false
             version: 17.4-alpine
