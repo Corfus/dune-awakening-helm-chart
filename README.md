@@ -40,6 +40,12 @@ helm upgrade --install dune . --namespace "$DUNE_NAMESPACE" --wait --timeout 15m
   -f values.private.yaml
 ```
 
+The helper also creates `dune-backup-credentials` with random S3 access keys and
+the discovery label required by the database operator. Re-running it preserves
+existing backup keys and repairs a missing label. Incomplete existing backup
+credentials cause an error rather than automatic key rotation. Use
+`--backup-secret-name <name>` if you change `backups.existingSecret`.
+
 Create `values.private.yaml` locally (it is ignored by Git):
 
 ```yaml
@@ -68,7 +74,7 @@ pipes are unsupported. Set
 `credentials.existingSecret` if its name differs. `world-id` must be
 `sh-<lowercase-HostId>-<six-lowercase-letters>`. The chart does not bundle the
 cluster-specific SealedSecret from the original deployment. Manage it separately;
-the helper's `--sealed-output` option remains available.
+the helper's `--sealed-output` option writes both credential Secrets as a multi-document YAML file.
 
 ## Installing a release
 
@@ -182,23 +188,32 @@ and mounts a dedicated `dune-backups` PVC at `/data`. Both object data and filer
 metadata live on that PVC. There is no backup directory mounted in the database
 pod itself.
 
-Provision a separate Secret **before enabling backups**, with two nonempty keys:
-`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. Use your secret manager or
-SealedSecrets; do not commit plaintext credentials. Label the Secret so the
-database operator can discover it:
+Run the credential helper **before enabling backups** (it also supports existing
+installations):
 
 ```sh
-kubectl -n dune label secret dune-backup-credentials \
-  igw.funcom.com/backup-credentials=dune-backup-credentials --overwrite
+python3 scripts/create-credentials.py --namespace dune
 ```
 
-Persist that label in the Secret/SealedSecret manifest for GitOps. If changing
-`backups.existingSecret`, set the label value to the new Secret name as well.
-SeaweedFS reads those same keys through explicit Secret references. The chart
-also creates a labeled configuration Secret containing the internal endpoint,
+It creates `dune-backup-credentials` with random `AWS_ACCESS_KEY_ID` and
+`AWS_SECRET_ACCESS_KEY` values and the discovery label
+`igw.funcom.com/backup-credentials: dune-backup-credentials`. Existing keys are
+preserved. For GitOps, use `--sealed-output sealed-credentials.yaml` to encrypt
+both Secrets into one file, including the backup discovery label. Do not commit
+plaintext credentials.
+
+If changing `backups.existingSecret`, pass the same name through the helper's
+`--backup-secret-name` option. If managing credentials independently, provide
+both nonempty keys and set the discovery label value to the Secret name.
+SeaweedFS reads those same keys through explicit Secret references. The bootstrap
+job also creates a labeled configuration Secret containing the internal endpoint,
 region and bucket, which the database and restore utility pods import alongside
-the credentials. Avoid defining conflicting AWS/Barman variables in other
-Secrets selected by the database operator.
+the credentials. The endpoint uses the storage Service's ClusterIP, discovered
+through Kubernetes service environment variables, so the shipped Barman SDK uses
+path-style requests instead of prepending the bucket to the DNS hostname. If the
+Service is recreated with a different ClusterIP, run the Helm upgrade or Argo CD
+sync again and restart the database pod to refresh its environment. Avoid defining
+conflicting AWS/Barman variables in other Secrets selected by the database operator.
 
 Optional storage settings (independent of the game database PVC):
 

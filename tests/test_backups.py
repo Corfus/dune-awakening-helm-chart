@@ -68,10 +68,13 @@ class BackupTests(unittest.TestCase):
         self.assertIn('-bucket=dune-backups', container['args'])
         for env in container['env']:
             self.assertEqual(env['valueFrom']['secretKeyRef']['name'], 'my-backup-keys')
-        config = objects['Secret', 'dune-backup-config']['stringData']
-        self.assertEqual(config['AWS_ENDPOINT_URL'], 'http://dune-backups.backup-test.svc:8333')
-        self.assertEqual(config['BARMAN_CLOUD_BUCKET_NAME'], 'dune-backups')
-        self.assertNotIn('AWS_SECRET_ACCESS_KEY', config)
+        self.assertNotIn(('Secret', 'dune-backup-config'), objects)
+        hook = objects['Job', 'dune-configure-battlegroup']['spec']['template']['spec']
+        self.assertTrue(hook['enableServiceLinks'])
+        self.assertIn({'name': 'BACKUP_BUCKET', 'value': 'dune-backups'}, hook['containers'][0]['env'])
+        rules = objects['Role', 'dune-bootstrap']['rules']
+        self.assertTrue(any('dune-backup-config' in rule.get('resourceNames', [])
+                            and 'patch' in rule['verbs'] for rule in rules))
         db = self.database(*args)
         for selectors in (db['envSecretSelectors'], db['utilityRuntimeConfig']['envSecretSelectors']):
             self.assertIn({'matchLabels': {'igw.funcom.com/backup-credentials': 'my-backup-keys'}}, selectors)

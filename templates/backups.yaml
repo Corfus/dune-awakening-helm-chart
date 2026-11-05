@@ -18,21 +18,6 @@ spec:
       storage: {{ .Values.backups.storage.size | quote }}
 ---
 apiVersion: v1
-kind: Secret
-metadata:
-  name: dune-backup-config
-  namespace: {{ .Release.Namespace | quote }}
-  labels:
-    igw.funcom.com/backup-config: dune
-  annotations:
-    argocd.argoproj.io/sync-wave: "-10"
-type: Opaque
-stringData:
-  AWS_ENDPOINT_URL: {{ printf "http://dune-backups.%s.svc:8333" .Release.Namespace | quote }}
-  AWS_DEFAULT_REGION: us-east-1
-  BARMAN_CLOUD_BUCKET_NAME: {{ .Values.backups.bucket | quote }}
----
-apiVersion: v1
 kind: Service
 metadata:
   name: dune-backups

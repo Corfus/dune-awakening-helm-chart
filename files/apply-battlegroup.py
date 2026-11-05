@@ -80,6 +80,23 @@ def render(template, credentials, namespace, node_ip):
     return gateway, rmq, world
 
 
+def backup_config(namespace, service_host, bucket):
+    # Barman with AWS_ENDPOINT_URL can select virtual-hosted addressing for DNS
+    # endpoints. A literal IP forces path-style addressing in the shipped SDK.
+    address = ipaddress.ip_address(service_host)
+    host = f"[{address}]" if address.version == 6 else str(address)
+    return {
+        "apiVersion": "v1", "kind": "Secret", "type": "Opaque",
+        "metadata": {"name": "dune-backup-config", "namespace": namespace,
+                     "labels": {"igw.funcom.com/backup-config": "dune"}},
+        "data": {key: base64.b64encode(value.encode()).decode() for key, value in {
+            "AWS_ENDPOINT_URL": f"http://{host}:8333",
+            "AWS_DEFAULT_REGION": "us-east-1",
+            "BARMAN_CLOUD_BUCKET_NAME": bucket,
+        }.items()},
+    }
+
+
 def main():
     namespace = os.environ["POD_NAMESPACE"]
     node_ip = os.environ["NODE_IP"]
@@ -91,7 +108,12 @@ def main():
     login_file = credential_dir / "server-login-password"
     credentials["server-login-password"] = login_file.read_text() if login_file.exists() else ""
     template = json.loads(Path("/work/battlegroup.json").read_text())
-    objects = render(template, credentials, namespace, node_ip)
+    objects = list(render(template, credentials, namespace, node_ip))
+    if os.environ.get("BACKUP_BUCKET"):
+        # Fail before applying the BattleGroup if service discovery is unavailable.
+        config = backup_config(namespace, os.environ["DUNE_BACKUPS_SERVICE_HOST"],
+                               os.environ["BACKUP_BUCKET"])
+        objects.insert(0, config)
 
     serviceaccount = Path("/var/run/secrets/kubernetes.io/serviceaccount")
     token = (serviceaccount / "token").read_text().strip()

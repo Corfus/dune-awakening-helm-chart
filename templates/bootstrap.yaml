@@ -19,7 +19,12 @@ rules:
     verbs: ["get", "create", "patch"]
   - apiGroups: [""]
     resources: ["secrets"]
-    resourceNames: ["server-gateway-secret", "rmq-game-secret"]
+    resourceNames:
+      - server-gateway-secret
+      - rmq-game-secret
+{{- if .Values.backups.enabled }}
+      - dune-backup-config
+{{- end }}
     verbs: ["get", "patch"]
   - apiGroups: [""]
     resources: ["secrets"]
@@ -58,6 +63,8 @@ spec:
   template:
     spec:
       serviceAccountName: dune-bootstrap
+      # Supplies DUNE_BACKUPS_SERVICE_HOST after the storage Service is created.
+      enableServiceLinks: true
       nodeSelector:{{ toYaml .Values.nodeSelector | nindent 8 }}
       restartPolicy: Never
       securityContext:
@@ -104,6 +111,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+{{- if .Values.backups.enabled }}
+            - name: BACKUP_BUCKET
+              value: {{ .Values.backups.bucket | quote }}
+{{- end }}
           resources:
             requests: {cpu: 10m, memory: 32Mi}
             limits: {memory: 128Mi}

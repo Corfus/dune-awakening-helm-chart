@@ -27,11 +27,70 @@ def token_host_id(token):
     return host
 
 
+def backup_credentials(namespace, name):
+    label = "igw.funcom.com/backup-credentials"
+    result = subprocess.run(
+        ["kubectl", "-n", namespace, "get", "secret", name, "--ignore-not-found", "-o", "json"],
+        check=True, capture_output=True, text=True,
+    )
+    if result.stdout.strip():
+        existing = json.loads(result.stdout)
+        data = existing.get("data", {})
+        for key in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"):
+            try:
+                valid = bool(base64.b64decode(data.get(key, ""), validate=True))
+            except ValueError:
+                valid = False
+            if not valid:
+                raise RuntimeError(f"Existing {name} has missing or empty backup keys; repair it explicitly to avoid credential rotation")
+        labels = dict(existing["metadata"].get("labels", {}))
+        if labels.get(label) != name:
+            patch = {"metadata": {
+                "resourceVersion": existing["metadata"]["resourceVersion"],
+                "labels": {label: name},
+            }}
+            updated = subprocess.run(
+                ["kubectl", "-n", namespace, "patch", "secret", name,
+                 "--type=merge", "--patch-file=/dev/stdin"],
+                input=json.dumps(patch), capture_output=True, text=True,
+            )
+            if updated.returncode:
+                raise RuntimeError("Labeling the backup Secret failed; retry after checking context and permissions")
+        labels[label] = name
+        secret = {
+            "apiVersion": "v1", "kind": "Secret", "type": existing.get("type", "Opaque"),
+            "metadata": {"name": name, "namespace": namespace, "labels": labels},
+            "data": data,
+        }
+        print(f"Reusing existing {name}; backup credentials are preserved.")
+    else:
+        secret = {
+            "apiVersion": "v1", "kind": "Secret", "type": "Opaque",
+            "metadata": {"name": name, "namespace": namespace, "labels": {label: name}},
+            "data": {key: base64.b64encode(secrets.token_urlsafe(32).encode()).decode()
+                     for key in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY")},
+        }
+        created = subprocess.run(
+            ["kubectl", "create", "-f", "-"], input=json.dumps(secret),
+            capture_output=True, text=True,
+        )
+        if created.returncode:
+            raise RuntimeError("Creating the backup Secret failed; check the namespace, context and permissions")
+        print(f"Created {name} with persistent backup credentials.")
+    return secret
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--namespace", default="dune")
-    parser.add_argument("--sealed-output", type=Path, help="Also encrypt the existing/new Secret using kubeseal")
+    parser.add_argument("--sealed-output", type=Path, help="Also encrypt both existing/new Secrets into one YAML file using kubeseal")
+    parser.add_argument("--backup-secret-name", default="dune-backup-credentials",
+                        help="Backup Secret name; must match backups.existingSecret")
     args = parser.parse_args()
+    if not re.fullmatch(r"[a-z0-9]([-a-z0-9]*[a-z0-9])?", args.backup_secret_name) or len(args.backup_secret_name) > 63:
+        raise ValueError("Backup Secret name must be a DNS label of at most 63 characters")
+    if args.backup_secret_name == "dune-credentials":
+        raise ValueError("Backup Secret must be separate from dune-credentials")
     result = subprocess.run(
         ["kubectl", "-n", args.namespace, "get", "secret", "dune-credentials", "--ignore-not-found", "-o", "json"],
         check=True, capture_output=True, text=True,
@@ -89,15 +148,20 @@ def main():
         if created.returncode:
             raise RuntimeError("Creating dune-credentials failed; check the namespace, context and permissions")
         print("Created dune-credentials.")
+    backup_secret = backup_credentials(args.namespace, args.backup_secret_name)
     if args.sealed_output:
-        sealed = subprocess.run(
-            ["kubeseal", "--format", "yaml"], input=json.dumps(secret),
-            capture_output=True, text=True,
-        )
-        if sealed.returncode:
-            raise RuntimeError("kubeseal failed; check its connection to the sealed-secrets controller")
-        args.sealed_output.write_text(sealed.stdout)
-        print(f"Encrypted credentials written to {args.sealed_output}; add that file to kustomization.yaml resources.")
+        documents = []
+        for item in (secret, backup_secret):
+            sealed = subprocess.run(
+                ["kubeseal", "--format", "yaml"], input=json.dumps(item),
+                capture_output=True, text=True,
+            )
+            if sealed.returncode:
+                raise RuntimeError("kubeseal failed; check its connection to the sealed-secrets controller")
+            documents.append(sealed.stdout.rstrip())
+        args.sealed_output.write_text("\n---\n".join(documents) + "\n")
+        print(f"Both encrypted Secrets written to {args.sealed_output}; add that file to kustomization.yaml resources.")
+
 
 
 if __name__ == "__main__":
